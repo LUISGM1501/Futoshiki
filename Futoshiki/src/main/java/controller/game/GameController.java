@@ -44,4 +44,9 @@ public class GameController {
     public void loadGame() {
         // Cargar el juego
     }
+
+    public boolean verifyBoard() {
+        // Usar el método resolverTabla que ya implementó
+        return gameState.getBoard().resolverTabla();
+    }
 }

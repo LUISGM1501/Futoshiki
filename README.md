@@ -20,7 +20,7 @@ src/
         │   └── player/        # Modelos de gestión de jugadores
         ├── view/              # Componentes de interfaz de usuario
         │   ├── components/    # Componentes UI reutilizables
-        │   ├── dialogs/       # Ventanas de diálogo
+        │   ├── dialogs/       # Ventanas de diálogo, que son ventanas emergentes que se muestran al usuario para interactuar con el sistema
         │   └── game/         # Componentes principales de la interfaz del juego
         └── util/              # Clases utilitarias
             └── constants/     # Constantes y enumeraciones

@@ -28,4 +28,28 @@ public class GameScore implements Comparable<GameScore> {
     }
 
     // Getters y setters
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public int getHours() {
+        return hours;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+
+    public int getSeconds() {
+        return seconds;
+    }
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public int getGridSize() {
+        return gridSize;
+    }
 }

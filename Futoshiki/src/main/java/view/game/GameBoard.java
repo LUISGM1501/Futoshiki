@@ -1,39 +1,76 @@
 package view.game;
 
-import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
-import view.components.NumberCell;
-import view.components.InequalityLabel;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import model.game.Celda;
 
 public class GameBoard extends JPanel {
     private int size;
-    private NumberCell[][] cells;
-    private InequalityLabel[][] horizontalInequalities;
-    private InequalityLabel[][] verticalInequalities;
-
-    public GameBoard() {
-        this(5); // Tamaño predeterminado 5x5
-    }
+    private JPanel[][] cellPanels;  // Para contener celda y sus desigualdades
+    private Celda[][] cells;
+    private boolean isPlayable;
 
     public GameBoard(int size) {
         this.size = size;
-        setLayout(new GridLayout(size, size));
+        this.isPlayable = false;
         initializeComponents();
+        layoutComponents();
     }
 
     private void initializeComponents() {
-        cells = new NumberCell[size][size];
-        horizontalInequalities = new InequalityLabel[size][size-1];
-        verticalInequalities = new InequalityLabel[size-1][size];
-
-        // Inicializar celdas
+        cellPanels = new JPanel[size][size];
+        cells = new Celda[size][size];
+        
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                cells[i][j] = new NumberCell();
-                add(cells[i][j]);
+                cells[i][j] = new Celda(0);
+                cellPanels[i][j] = createCellPanel(cells[i][j]);
             }
         }
     }
 
-    // Métodos para manejar el tablero
+    private JPanel createCellPanel(Celda celda) {
+        JPanel panel = new JPanel(new BorderLayout());
+        JButton cellButton = new JButton();
+        cellButton.setPreferredSize(new Dimension(50, 50));
+        
+        // Labels para desigualdades
+        JLabel rightLabel = new JLabel(celda.getDesDer());
+        JLabel bottomLabel = new JLabel(celda.getDesAbajo());
+        
+        panel.add(cellButton, BorderLayout.CENTER);
+        panel.add(rightLabel, BorderLayout.EAST);
+        panel.add(bottomLabel, BorderLayout.SOUTH);
+        
+        return panel;
+    }
+
+    private void layoutComponents() {
+        setLayout(new GridLayout(size, size));
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                add(cellPanels[i][j]);
+            }
+        }
+    }
+
+    public void setPlayable(boolean playable) {
+        this.isPlayable = playable;
+        // Habilitar/deshabilitar interacción
+    }
+
+    public void setCellValue(int row, int col, int value) {
+        cells[row][col].setValor(value);
+        updateCellDisplay(row, col);
+    }
+
+    private void updateCellDisplay(int row, int col) {
+        // Actualizar la visualización de la celda
+    }
 }

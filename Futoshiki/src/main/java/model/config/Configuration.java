@@ -25,4 +25,75 @@ public class Configuration {
     }
 
     // Getters y setters
+    public int getGridSize() {
+        return gridSize;
+    }
+
+    public void setGridSize(int gridSize) {
+        this.gridSize = gridSize;
+    }
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public boolean isMultiLevel() {
+        return isMultiLevel;
+    }
+
+    public void setMultiLevel(boolean isMultiLevel) {
+        this.isMultiLevel = isMultiLevel;
+    }
+
+    public String getTimerType() {
+        return timerType;
+    }
+
+    public void setTimerType(String timerType) {
+        this.timerType = timerType;
+    }
+
+    public int getTimerHours() {
+        return timerHours;
+    }
+
+    public void setTimerHours(int timerHours) {
+        this.timerHours = timerHours;
+    }
+
+    public int getTimerMinutes() {
+        return timerMinutes;
+    }
+
+    public void setTimerMinutes(int timerMinutes) {
+        this.timerMinutes = timerMinutes;
+    }
+
+    public int getTimerSeconds() {
+        return timerSeconds;
+    }
+
+    public void setTimerSeconds(int timerSeconds) {
+        this.timerSeconds = timerSeconds;
+    }
+
+    public String getDigitPanelPosition() {
+        return digitPanelPosition;
+    }
+
+    public void setDigitPanelPosition(String digitPanelPosition) {
+        this.digitPanelPosition = digitPanelPosition;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+    
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
 }

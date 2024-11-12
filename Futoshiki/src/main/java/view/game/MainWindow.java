@@ -87,7 +87,7 @@ public class MainWindow extends JFrame {
         setJMenuBar(menuBar.getMenuBar());
 
         // Crear paneles principales
-        gameBoard = new GameBoard();
+        gameBoard = new GameBoard(5);
         digitPanel = new DigitPanel();
         timerDisplay = new TimerDisplay();
         

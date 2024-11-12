@@ -11,5 +11,11 @@ public class FutoshikiBoard {
     private List<GameConstants> constants;
 
 
-    // Métodos para manipular el tablero y validar jugadas
+    // Métodos
+
+    public boolean resolverTabla() {
+        // Implementar
+        return false;
+    }
+
 }
