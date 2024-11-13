@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jugadores>
     <jugador>
+        <nombre>Andres</nombre>
+        <password>1082d9aa09db251f9dd924189c728ce64dc98dc60b50b3282ec432da26495865</password>
+        <email>a.hernandez.5@estudiantec.cr</email>
+        <scores/>
+    </jugador>
+    <jugador>
         <nombre>Luis</nombre>
-        <password>8659797e1617374bb28ae46534c8d63095cf731901e1411a0f9b64a062482c5f</password>
+        <password>cac37ff6ad99139f71d4c65227dd67e1229c6e731890b882ddbcf7ee7e7dc8d7</password>
         <email>gerardomax64@gmail.com</email>
         <token>9327052309588d0233843b6da0798b919c006f3ecbe53410bea11706d4d15056</token>
         <scores/>
