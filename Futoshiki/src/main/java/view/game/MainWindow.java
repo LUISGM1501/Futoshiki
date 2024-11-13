@@ -7,6 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,6 +31,10 @@ public class MainWindow extends JFrame {
     private DigitPanel digitPanel;
     private GameBoard gameBoard;
     private TimerDisplay timerDisplay;
+
+    private Timer timer;
+
+    private int x = 0;
     
     // Panel superior
     private JPanel topPanel;
@@ -61,7 +69,13 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
     }
 
+
+
     private void initializeComponents() {
+
+        //Lo creamos arriba para poder utilizar su tecto en timerLabel
+        timerDisplay = new TimerDisplay();
+
         // Inicializar el panel principal
         mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -71,7 +85,7 @@ public class MainWindow extends JFrame {
         levelLabel = new JLabel("NIVEL FÁCIL");
         levelLabel.setFont(new Font("Arial", Font.BOLD, 14));
         playerNameLabel = new JLabel("Nombre del jugador:");
-        timerLabel = new JLabel("00 : 00 : 00");
+        timerLabel = new JLabel(timerDisplay.toString());
         
         topPanel.add(levelLabel);
         topPanel.add(playerNameLabel);
@@ -89,7 +103,7 @@ public class MainWindow extends JFrame {
         // Crear paneles principales
         gameBoard = new GameBoard(5);
         digitPanel = new DigitPanel();
-        timerDisplay = new TimerDisplay();
+
         
         // Panel de botones
         buttonPanel = new JPanel(new GridLayout(7, 1, 5, 5));
@@ -104,6 +118,19 @@ public class MainWindow extends JFrame {
                 gameButtons[i].setEnabled(false);
             }
         }
+
+    }
+
+    private void startTimer() {
+        timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                timerDisplay.actualizarTiempo();
+                timerLabel.setText(timerDisplay.toString());
+            }
+        });
+        timer.start();
     }
 
     private JButton createStyledButton(String text) {
@@ -141,6 +168,7 @@ public class MainWindow extends JFrame {
         this.scoreController = scoreController;
         
         setupButtonListeners();
+        startTimer();
     }
 
     private void setupButtonListeners() {
