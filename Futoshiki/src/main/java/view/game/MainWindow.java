@@ -19,6 +19,7 @@ import javax.swing.border.EmptyBorder;
 
 import controller.config.ConfigurationController;
 import controller.game.GameController;
+import controller.timer.TimerController;
 import controller.top10.ScoreController;
 import view.components.TimerDisplay;
 public class MainWindow extends JFrame {
@@ -59,6 +60,7 @@ public class MainWindow extends JFrame {
     private ConfigurationController configController;
     private GameController gameController;
     private ScoreController scoreController;
+    private TimerController timerController;
 
     public MainWindow() {
         setTitle("Futoshiki");
@@ -126,8 +128,8 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                timerDisplay.actualizarTiempo();
-                timerLabel.setText(timerDisplay.toString());
+                timerController.actualizarTiempo();
+                timerLabel.setText(timerController.toString());
             }
         });
         timer.start();
@@ -161,11 +163,12 @@ public class MainWindow extends JFrame {
     }
 
     public void initializeControllers(ConfigurationController configController,
-                                    GameController gameController,
-                                    ScoreController scoreController) {
+                                      GameController gameController,
+                                      ScoreController scoreController, TimerController timerController) {
         this.configController = configController;
         this.gameController = gameController;
         this.scoreController = scoreController;
+        this.timerController = timerController;
         
         setupButtonListeners();
         startTimer();

@@ -8,6 +8,7 @@ import javax.swing.*;
 
 import controller.config.ConfigurationController;
 import controller.game.GameController;
+import controller.timer.TimerController;
 import controller.top10.ScoreController;
 import model.config.Configuration;
 import model.game.FutoshikiBoard;
@@ -46,6 +47,8 @@ public class Main {
                 GameController gameController =
                     new GameController(gameState, mainWindow);
                 ScoreController scoreController = new ScoreController();
+                TimerController timerController =
+                        new TimerController(0,2,0, true);
 
                 // Mostrar diálogo de login
                 PlayerLoginDialog loginDialog = new PlayerLoginDialog(null, playerManager);
@@ -63,7 +66,7 @@ public class Main {
                 }
 
                 // Inicializar la ventana principal
-                mainWindow.initializeControllers(configController, gameController, scoreController);
+                mainWindow.initializeControllers(configController, gameController, scoreController, timerController);
                 mainWindow.setPlayerName(config.getPlayerName());
                 mainWindow.setVisible(true);
 
