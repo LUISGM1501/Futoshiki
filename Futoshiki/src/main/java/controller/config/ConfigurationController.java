@@ -1,6 +1,7 @@
 package controller.config;
 
 import model.config.Configuration;
+import view.dialogs.ConfigurationDialog;
 import view.game.MainWindow;
 
 public class ConfigurationController {
@@ -11,5 +12,15 @@ public class ConfigurationController {
     public ConfigurationController(Configuration config, MainWindow mainWindow) {
         this.config = config;
         this.mainWindow = mainWindow;
+    }
+
+    public void showConfigDialog() {
+        ConfigurationDialog dialog = new ConfigurationDialog(mainWindow);
+        dialog.setVisible(true);
+        
+        if (dialog.isConfirmed()) {
+            config = dialog.getConfiguration();
+            mainWindow.setConfiguration(config);
+        }
     }
 }

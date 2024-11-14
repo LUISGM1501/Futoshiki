@@ -47,7 +47,7 @@ public class Main {
                 // Inicializar componentes del juego
                 PlayerManager playerManager = new PlayerManager();
                 Configuration config = new Configuration();
-                GameState gameState = new GameState(new FutoshikiBoard(), "Facil");
+                GameState gameState = new GameState(new FutoshikiBoard(3), "Facil");
                 MainWindow mainWindow = new MainWindow();
                 
                 // Crear y configurar controladores
@@ -55,7 +55,7 @@ public class Main {
                     new ConfigurationController(config, mainWindow);
                 GameController gameController = 
                     new GameController(gameState, mainWindow);
-                ScoreController scoreController = new ScoreController();
+                ScoreController scoreController = new ScoreController(mainWindow);
                 
                 // Mostrar diálogo de login
                 PlayerLoginDialog loginDialog = new PlayerLoginDialog(null, playerManager);

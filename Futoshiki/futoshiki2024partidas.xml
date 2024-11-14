@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<partidasFutoshiki>
+<!-- 3x3 Fácil -->
+    <partida>
+        <nivel>Facil</nivel>
+        <cuadricula>3</cuadricula>
+        <desigualdades>mef,0,1</desigualdades>
+        <constantes>1,0,0</constantes>
+    </partida>
+    <partida>
+        <nivel>Facil</nivel>
+        <cuadricula>3</cuadricula>
+        <desigualdades>maf,1,0</desigualdades>
+        <constantes>2,2,2</constantes>
+    </partida>
+
+    <!-- 3x3 Intermedio -->
+    <partida>
+        <nivel>Intermedio</nivel>
+        <cuadricula>3</cuadricula>
+        <desigualdades>mef,0,1</desigualdades>
+        <desigualdades>mac,1,0</desigualdades>
+        <constantes>3,1,1</constantes>
+    </partida>
+    <partida>
+        <nivel>Intermedio</nivel>
+        <cuadricula>3</cuadricula>
+        <desigualdades>maf,0,0</desigualdades>
+        <desigualdades>mec,1,1</desigualdades>
+        <constantes>1,2,0</constantes>
+    </partida>
+
+    <!-- 3x3 Difícil -->
+    <partida>
+        <nivel>Dificil</nivel>
+        <cuadricula>3</cuadricula>
+        <desigualdades>mef,0,0</desigualdades>
+        <desigualdades>mac,0,1</desigualdades>
+        <desigualdades>mec,1,0</desigualdades>
+        <constantes>2,1,1</constantes>
+    </partida>
+    <partida>
+        <nivel>Dificil</nivel>
+        <cuadricula>3</cuadricula>
+        <desigualdades>maf,0,1</desigualdades>
+        <desigualdades>mec,1,0</desigualdades>
+        <desigualdades>mac,1,2</desigualdades>
+        <constantes>3,0,0</constantes>
+    </partida>
+
+    <!-- 4x4 Fácil -->
+    <partida>
+        <nivel>Facil</nivel>
+        <cuadricula>4</cuadricula>
+        <desigualdades>mef,0,1</desigualdades>
+        <desigualdades>maf,2,1</desigualdades>
+        <constantes>1,0,0</constantes>
+        <constantes>4,3,3</constantes>
+    </partida>
+    <partida>
+        <nivel>Facil</nivel>
+        <cuadricula>4</cuadricula>
+        <desigualdades>mac,1,2</desigualdades>
+        <desigualdades>mec,2,1</desigualdades>
+        <constantes>2,0,3</constantes>
+        <constantes>3,3,0</constantes>
+    </partida>
+
+    <!-- 4x4 Intermedio -->
+    <partida>
+        <nivel>Intermedio</nivel>
+        <cuadricula>4</cuadricula>
+        <desigualdades>mef,0,1</desigualdades>
+        <desigualdades>mac,1,2</desigualdades>
+        <desigualdades>maf,2,1</desigualdades>
+        <constantes>4,0,0</constantes>
+        <constantes>1,3,3</constantes>
+    </partida>
+    <partida>
+        <nivel>Intermedio</nivel>
+        <cuadricula>4</cuadricula>
+        <desigualdades>mec,0,2</desigualdades>
+        <desigualdades>maf,1,1</desigualdades>
+        <desigualdades>mac,2,0</desigualdades>
+        <constantes>3,1,1</constantes>
+        <constantes>2,2,2</constantes>
+    </partida>
+
+    <!-- 4x4 Difícil -->
+    <partida>
+        <nivel>Dificil</nivel>
+        <cuadricula>4</cuadricula>
+        <desigualdades>mef,0,0</desigualdades>
+        <desigualdades>mac,0,1</desigualdades>
+        <desigualdades>maf,1,2</desigualdades>
+        <desigualdades>mec,2,1</desigualdades>
+        <constantes>1,0,3</constantes>
+        <constantes>4,3,0</constantes>
+    </partida>
+    <partida>
+        <nivel>Dificil</nivel>
+        <cuadricula>4</cuadricula>
+        <desigualdades>maf,0,1</desigualdades>
+        <desigualdades>mec,1,0</desigualdades>
+        <desigualdades>mac,1,2</desigualdades>
+        <desigualdades>mef,2,1</desigualdades>
+        <constantes>2,1,1</constantes>
+        <constantes>3,2,2</constantes>
+    </partida>
+    
+    <!-- Nivel Fácil -->
+    <partida>
+        <nivel>Facil</nivel>
+        <cuadricula>5</cuadricula>
+        <!-- Desigualdades -->
+        <desigualdades>maf,0,0</desigualdades>
+        <desigualdades>mef,0,3</desigualdades>
+        <desigualdades>mac,1,1</desigualdades>
+        <!-- Números constantes -->
+        <constantes>3,0,0</constantes>
+        <constantes>1,0,4</constantes>
+        <constantes>4,2,2</constantes>
+        <constantes>2,4,4</constantes>
+    </partida>
+    
+    <!-- Nivel Intermedio -->
+    <partida>
+        <nivel>Intermedio</nivel>
+        <cuadricula>5</cuadricula>
+        <desigualdades>maf,0,1</desigualdades>
+        <desigualdades>mef,0,3</desigualdades>
+        <desigualdades>mac,1,1</desigualdades>
+        <desigualdades>mec,2,2</desigualdades>
+        <desigualdades>maf,3,0</desigualdades>
+        <constantes>5,0,0</constantes>
+        <constantes>2,2,2</constantes>
+    </partida>
+    
+    <!-- Nivel Difícil -->
+    <partida>
+        <nivel>Dificil</nivel>
+        <cuadricula>5</cuadricula>
+        <desigualdades>maf,0,0</desigualdades>
+        <desigualdades>mef,0,2</desigualdades>
+        <desigualdades>mac,1,1</desigualdades>
+        <desigualdades>mec,2,2</desigualdades>
+        <desigualdades>maf,2,3</desigualdades>
+        <desigualdades>maf,3,1</desigualdades>
+        <desigualdades>mac,4,0</desigualdades>
+        <constantes>4,2,2</constantes>
+    </partida>
+</partidasFutoshiki>

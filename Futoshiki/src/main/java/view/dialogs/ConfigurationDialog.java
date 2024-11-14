@@ -37,6 +37,7 @@ public class ConfigurationDialog extends JDialog {
     private JTextField playerNameField;
     private JButton okButton;
     private JButton cancelButton;
+    private boolean isConfirmed = false;
 
     public ConfigurationDialog(Frame owner) {
         super(owner, "Configuración", true);
@@ -116,5 +117,13 @@ public class ConfigurationDialog extends JDialog {
         Configuration config = new Configuration();
         // Obtener valores de los componentes y configurar el objeto
         return config;
+    }
+
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.isConfirmed = confirmed;
     }
 }
