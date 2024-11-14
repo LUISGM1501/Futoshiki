@@ -47,7 +47,7 @@ public class Main {
                 // Inicializar componentes del juego
                 PlayerManager playerManager = new PlayerManager();
                 Configuration config = new Configuration();
-                GameState gameState = new GameState(new FutoshikiBoard(3), "Facil");
+                GameState gameState = new GameState(new FutoshikiBoard(3), "Facil", config.toString());
                 MainWindow mainWindow = new MainWindow();
                 
                 // Crear y configurar controladores

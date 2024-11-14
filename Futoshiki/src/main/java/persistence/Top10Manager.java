@@ -17,7 +17,7 @@ import util.constants.GameConstants;
 
 public class Top10Manager {
     private Map<String, List<GameScore>> scoresByLevel;
-    
+    private static Top10Manager instance;
     public Top10Manager() {
         scoresByLevel = new HashMap<>();
         scoresByLevel.put(GameConstants.LEVEL_EASY, new ArrayList<>());
@@ -102,5 +102,12 @@ public class Top10Manager {
                              lastScore.getSeconds();
         
         return totalSeconds < lastScoreSeconds;
+    }
+
+    public static Top10Manager getInstance() {
+        if (instance == null) {
+            instance = new Top10Manager();
+        }
+        return instance;
     }
 }

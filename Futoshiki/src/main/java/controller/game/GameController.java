@@ -291,7 +291,7 @@ public class GameController {
             return;
         }
         
-        boolean saved = GameSaver.saveGame(gameState, view.getConfiguration(), view.getPlayerName());
+        boolean saved = GameSaver.saveGame(gameState, view.getPlayerName());
         if (saved) {
             JOptionPane.showMessageDialog(view,
                 "Juego guardado exitosamente",
@@ -310,18 +310,18 @@ public class GameController {
             return;
         }
         
-        GameSaver.SavedGame savedGame = GameSaver.loadGame(view.getPlayerName());
+        GameState savedGame = GameSaver.loadGame(view.getPlayerName());
         if (savedGame != null) {
-            gameState = savedGame.getGameState();
-            view.setConfiguration(savedGame.getConfig());
+            this.gameState = savedGame;
+            view.setLevel(savedGame.getDifficulty());
             isGameStarted = true;
             updateGameBoard();
             view.enableGameButtons(true);
             view.getGameBoard().setPlayable(true);
             
             // Restaurar el timer
-            long elapsedTime = System.currentTimeMillis() - savedGame.getTimestamp();
-            startTimer();
+            //long elapsedTime = System.currentTimeMillis() - savedGame.getTimestamp();
+            //startTimer();
         } else {
             JOptionPane.showMessageDialog(view,
                 "No se encontró ningún juego guardado",
