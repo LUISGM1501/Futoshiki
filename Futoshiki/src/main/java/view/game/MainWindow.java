@@ -129,7 +129,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e)
             {
                 timerController.actualizarTiempo();
-                timerLabel.setText(timerController.toString());
+                setTimer(timerController.toString());
             }
         });
         timer.start();
@@ -204,4 +204,6 @@ public class MainWindow extends JFrame {
     public void setLevel(String level) {
         levelLabel.setText("NIVEL " + level.toUpperCase());
     }
+
+
 }

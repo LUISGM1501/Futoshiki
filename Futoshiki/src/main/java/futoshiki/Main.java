@@ -14,6 +14,7 @@ import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.GameState;
 import model.player.PlayerManager;
+import view.dialogs.ConfigurationDialog;
 import view.dialogs.PlayerLoginDialog;
 import view.game.MainWindow;
 
@@ -58,6 +59,10 @@ public class Main {
                 splash.dispose();
                 loginDialog.setVisible(true);
 
+                ConfigurationDialog configDialog = new ConfigurationDialog(null);
+                configDialog.setVisible(true);
+                config = configDialog.getConfiguration();
+
                 // Cuando se cierra el login, configurar y mostrar ventana principal
                 if (loginDialog.isLoggedIn()) {
                     config.setPlayerName(loginDialog.getPlayerName());
@@ -68,6 +73,8 @@ public class Main {
                 // Inicializar la ventana principal
                 mainWindow.initializeControllers(configController, gameController, scoreController, timerController);
                 mainWindow.setPlayerName(config.getPlayerName());
+                mainWindow.setLevel(config.getDifficulty());
+
                 mainWindow.setVisible(true);
 
             } catch (InterruptedException e) {

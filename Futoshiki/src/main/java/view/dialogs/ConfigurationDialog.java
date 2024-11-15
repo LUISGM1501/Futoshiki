@@ -1,11 +1,6 @@
 package view.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -43,6 +38,7 @@ public class ConfigurationDialog extends JDialog {
         initComponents();
         layoutComponents();
         initializeValues();
+        setupListeners();
         pack();
         setLocationRelativeTo(owner);
     }
@@ -94,27 +90,90 @@ public class ConfigurationDialog extends JDialog {
     private void layoutComponents() {
         setLayout(new BorderLayout());
         
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new GridLayout(4,0));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.NORTH;
 
+
+
+        //Radio Buttons
+        JPanel rButtonPanel = new JPanel(new GridLayout(6,0));
+        rButtonPanel.add(chronoButton);
+        rButtonPanel.add(timerButton);
+        rButtonPanel.add(noTimerButton);
+
+        //Spinners
+        JPanel timerSpinners = new JPanel(new GridLayout(0, 4));
+        timerSpinners.add(hoursSpinner);
+        timerSpinners.add(minutesSpinner);
+        timerSpinners.add(secondsSpinner);
+        rButtonPanel.add(timerSpinners,BorderLayout.EAST);
+
+
+        mainPanel.add(difficultyCombo);
+        mainPanel.add(gridSizeCombo);
+        mainPanel.add(multiLevelCheck);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
 
+        add(rButtonPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+        //add(rButtonPanel, BorderLayout.SOUTH);
     }
 
     private void initializeValues() {
         // Cargar valores desde la configuración actual
     }
 
+
+    private void setupListeners()
+    {
+        okButton.addActionListener(e -> exit());
+    }
+
+
+    private void exit()
+    {
+        System.out.println(getTimerType());
+        System.out.println(secondsSpinner.getValue());
+        dispose();
+    }
+
+    private int getGridSize()
+    {
+        char gridSize = gridSizeCombo.getSelectedItem().toString().charAt(0);
+
+        return Character.getNumericValue(gridSize);
+    }
+
+    private String getTimerType()
+    {
+        if(timerButton.isSelected())
+        {
+            return timerButton.getText();
+        }else if(chronoButton.isSelected())
+        {
+            return chronoButton.getText();
+        }
+
+        return noTimerButton.getText();
+    }
+
     public Configuration getConfiguration() {
         Configuration config = new Configuration();
-        // Obtener valores de los componentes y configurar el objeto
+        config.setTimerType(getTimerType());
+
+        //Podriamos hacer una revision de que si es un timer o un cronometro
+        //Si es cronometro los comienza en 0, si es en timer lo comienza con lo que el mae escogio
+        config.setTimerSeconds((Integer) secondsSpinner.getValue());
+        config.setTimerMinutes((Integer) minutesSpinner.getValue());
+        config.setTimerHours((Integer) hoursSpinner.getValue());
+        config.setDifficulty(difficultyCombo.getSelectedItem().toString());
+        config.setGridSize(getGridSize());
         return config;
     }
 }
