@@ -49,7 +49,7 @@ public class Main {
                     new GameController(gameState, mainWindow);
                 ScoreController scoreController = new ScoreController();
                 TimerController timerController =
-                        new TimerController(0,2,0, true);
+                        new TimerController();
 
                 // Mostrar diálogo de login
                 PlayerLoginDialog loginDialog = new PlayerLoginDialog(null, playerManager);
@@ -69,6 +69,8 @@ public class Main {
                 } else {
                     config.setPlayerName("Invitado");
                 }
+
+                timerController.setValores(config);
 
                 // Inicializar la ventana principal
                 mainWindow.initializeControllers(configController, gameController, scoreController, timerController);

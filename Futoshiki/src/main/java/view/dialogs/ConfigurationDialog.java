@@ -166,9 +166,9 @@ public class ConfigurationDialog extends JDialog {
     public Configuration getConfiguration() {
         Configuration config = new Configuration();
         config.setTimerType(getTimerType());
-
         //Podriamos hacer una revision de que si es un timer o un cronometro
         //Si es cronometro los comienza en 0, si es en timer lo comienza con lo que el mae escogio
+        config.setTimerType(getTimerType());
         config.setTimerSeconds((Integer) secondsSpinner.getValue());
         config.setTimerMinutes((Integer) minutesSpinner.getValue());
         config.setTimerHours((Integer) hoursSpinner.getValue());

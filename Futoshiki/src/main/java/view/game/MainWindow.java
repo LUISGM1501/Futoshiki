@@ -174,6 +174,8 @@ public class MainWindow extends JFrame {
         startTimer();
     }
 
+
+
     private void setupButtonListeners() {
         gameButtons[0].addActionListener(e -> gameController.startGame());
         gameButtons[1].addActionListener(e -> gameController.undoMove());

@@ -12,4 +12,15 @@ public class ConfigurationController {
         this.config = config;
         this.mainWindow = mainWindow;
     }
+
+
+
+    public void setTimerType(String timerType)
+    {
+        config.setTimerType(timerType);
+    }
+    public String getCronometro()
+    {
+        return config.getTimerType();
+    }
 }
