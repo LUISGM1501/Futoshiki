@@ -86,7 +86,7 @@ public class TimerController
                     cronometro = "TERMINADO";
                 }else
                 {
-                    if (secondsPassed == 0) {
+                    if (secondsPassed <= 0) {
                         secondsPassed = 59;
                         minutesPassed -= 1;
                     }
