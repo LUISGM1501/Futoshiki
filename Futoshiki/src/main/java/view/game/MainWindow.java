@@ -54,6 +54,7 @@ public class MainWindow extends JFrame {
     private JPanel topPanel;
     private JLabel levelLabel;
     private JLabel playerNameLabel;
+    private JLabel timerLabel;
     
     // Panel de botones
     private JPanel buttonPanel;
@@ -121,6 +122,25 @@ public class MainWindow extends JFrame {
             }
         });
     }
+
+
+
+    private void createComponents() {
+        // Barra de menú
+        menuBar = new MenuBar();
+        setJMenuBar(menuBar.getMenuBar());
+
+        // Panel superior
+        createTopPanel();
+
+        // Panel de juego
+        createGamePanel();
+
+        // Panel de botones
+        createButtonPanel();
+    }
+
+
 
 
     private void initializeComponents() {
@@ -239,14 +259,17 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e)
             {
                 timerController.actualizarTiempo();
-                setTimer(timerController.toString());
+                setTimer();
             }
         });
         timer.start();
     }
 
         
-    
+    private void setTimer()
+    {
+        timerDisplay.updateTime(timerController.getHoursPassed(), timerController.getMinutesPassed(), timerController.getSecondsPassed());
+    }
 
     private void layoutComponents() {
         // Añadir los paneles principales
@@ -265,6 +288,8 @@ public class MainWindow extends JFrame {
         this.timerController = timerController;
         
         setupButtonListeners();
+        gameBoard.addCellClickListener((row, col) ->
+                gameController.handleCellClick(row, col));
         startTimer();
                                       }
     private void setupListeners() {

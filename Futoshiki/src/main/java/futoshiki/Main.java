@@ -73,6 +73,7 @@ public class Main {
                 timerController.setValores(config);
 
                 // Inicializar la ventana principal
+
                 mainWindow.initializeControllers(configController, gameController, scoreController, timerController);
                 mainWindow.setPlayerName(config.getPlayerName());
                 mainWindow.setLevel(config.getDifficulty());

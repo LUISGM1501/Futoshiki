@@ -135,6 +135,7 @@ public class GameController {
 
     public void handleCellClick(int row, int col) {
         if (!isGameStarted) {
+
             return;
         }
 
