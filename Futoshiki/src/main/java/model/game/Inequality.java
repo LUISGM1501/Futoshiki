@@ -21,4 +21,26 @@ public class Inequality {
             this.col2 = column;
         }
     }
+
+    public int getRow1() {
+        return row1;
+    }
+
+    public int getCol1() {
+        return col1;
+    }
+
+    public int getRow2() {
+        return row2;
+    }
+
+    public int getCol2() {
+        return col2;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    
 }

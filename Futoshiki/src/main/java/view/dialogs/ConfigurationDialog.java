@@ -32,6 +32,7 @@ public class ConfigurationDialog extends JDialog {
     private JTextField playerNameField;
     private JButton okButton;
     private JButton cancelButton;
+    private boolean isConfirmed = false;
 
     public ConfigurationDialog(Frame owner) {
         super(owner, "Configuración", true);
@@ -175,5 +176,13 @@ public class ConfigurationDialog extends JDialog {
         config.setDifficulty(difficultyCombo.getSelectedItem().toString());
         config.setGridSize(getGridSize());
         return config;
+    }
+
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.isConfirmed = confirmed;
     }
 }

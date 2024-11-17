@@ -1,6 +1,7 @@
 package controller.config;
 
 import model.config.Configuration;
+import view.dialogs.ConfigurationDialog;
 import view.game.MainWindow;
 
 public class ConfigurationController {
@@ -15,6 +16,7 @@ public class ConfigurationController {
 
 
 
+
     public void setTimerType(String timerType)
     {
         config.setTimerType(timerType);
@@ -22,5 +24,15 @@ public class ConfigurationController {
     public String getCronometro()
     {
         return config.getTimerType();
+    }
+    public void showConfigDialog() {
+        ConfigurationDialog dialog = new ConfigurationDialog(mainWindow);
+        dialog.setVisible(true);
+        
+        if (dialog.isConfirmed()) {
+            config = dialog.getConfiguration();
+            mainWindow.setConfiguration(config);
+        }
+
     }
 }

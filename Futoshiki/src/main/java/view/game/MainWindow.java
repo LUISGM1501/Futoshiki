@@ -5,15 +5,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -21,9 +26,17 @@ import controller.config.ConfigurationController;
 import controller.game.GameController;
 import controller.timer.TimerController;
 import controller.top10.ScoreController;
+import model.config.Configuration;
+import util.constants.GameConstants;
 import view.components.TimerDisplay;
+
 public class MainWindow extends JFrame {
-    private static final long serialVersionUID = 1L;
+    // Constantes para estilo
+    private static final Color PRIMARY_COLOR = new Color(25, 118, 210);
+    private static final Color BACKGROUND_COLOR = new Color(245, 245, 245);
+    private static final Color BUTTON_HOVER_COLOR = new Color(66, 165, 245);
+    private static final int WINDOW_WIDTH = 1000;
+    private static final int WINDOW_HEIGHT = 700;
     
     // Componentes principales
     private MenuBar menuBar;
@@ -41,7 +54,6 @@ public class MainWindow extends JFrame {
     private JPanel topPanel;
     private JLabel levelLabel;
     private JLabel playerNameLabel;
-    private JLabel timerLabel;
     
     // Panel de botones
     private JPanel buttonPanel;
@@ -60,17 +72,55 @@ public class MainWindow extends JFrame {
     private ConfigurationController configController;
     private GameController gameController;
     private ScoreController scoreController;
+
     private TimerController timerController;
 
+    
+    // Estado y configuración
+    private Configuration configuration;
+    private String playerName;
+
     public MainWindow() {
-        setTitle("Futoshiki");
+        super("Futoshiki");
+        // Primero configuramos la ventana base
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        initializeComponents();
+        setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+        setBackground(BACKGROUND_COLOR);
+
+        // Inicializamos la configuración
+        this.configuration = new Configuration();
+        
+        // Creamos el panel principal primero
+        mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        setContentPane(mainPanel);
+
+        // Luego inicializamos todos los componentes
+        createComponents();
         layoutComponents();
+        setupListeners();
+
+        // Finalmente empaquetamos y centramos
         pack();
         setLocationRelativeTo(null);
+        
+        // Configurar diálogo de cierre
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(
+                    MainWindow.this,
+                    "¿Está seguro que desea salir?",
+                    "Confirmar salida",
+                    JOptionPane.YES_NO_OPTION
+                );
+                if (option == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        });
     }
-
 
 
     private void initializeComponents() {
@@ -106,20 +156,80 @@ public class MainWindow extends JFrame {
         gameBoard = new GameBoard(5);
         digitPanel = new DigitPanel();
 
+    }
+
+
+    private void createTopPanel() {
+        // Panel superior
+        topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setBackground(BACKGROUND_COLOR);
+
+        // Panel de información
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
+        infoPanel.setBackground(BACKGROUND_COLOR);
+
+        // Labels
+        levelLabel = new JLabel("NIVEL FÁCIL");
+        levelLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        playerNameLabel = new JLabel("Nombre del jugador: Invitado");
+        playerNameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        // Timer
+        timerDisplay = new TimerDisplay();
+
+        // Añadir componentes
+        infoPanel.add(levelLabel);
+        infoPanel.add(playerNameLabel);
+
+        JPanel timerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        timerPanel.setBackground(BACKGROUND_COLOR);
+        timerPanel.add(timerDisplay);
+
+        // Añadir al panel superior
+        topPanel.add(infoPanel);
+        topPanel.add(timerPanel);
+    }
+
+    private void createGamePanel() {
+        gamePanel = new JPanel(new BorderLayout(10, 0));
+        gamePanel.setBackground(BACKGROUND_COLOR);
+
+        // Tablero
+        gameBoard = new GameBoard(configuration.getGridSize());
         
-        // Panel de botones
-        buttonPanel = new JPanel(new GridLayout(7, 1, 5, 5));
+        // Panel de dígitos
+        digitPanel = new DigitPanel();
+
+        // Colocar según configuración
+        if (configuration.getDigitPanelPosition().equals(GameConstants.PANEL_RIGHT)) {
+            gamePanel.add(gameBoard, BorderLayout.CENTER);
+            gamePanel.add(digitPanel, BorderLayout.EAST);
+        } else {
+            gamePanel.add(gameBoard, BorderLayout.CENTER);
+            gamePanel.add(digitPanel, BorderLayout.WEST);
+        }
+    }
+
+    private void createButtonPanel() {
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setBackground(BACKGROUND_COLOR);
+        buttonPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
+
         gameButtons = new JButton[buttonLabels.length];
-        
+
         for (int i = 0; i < buttonLabels.length; i++) {
             gameButtons[i] = createStyledButton(buttonLabels[i]);
+            buttonPanel.add(Box.createVerticalStrut(5));
             buttonPanel.add(gameButtons[i]);
-            
-            // Deshabilitar todos los botones excepto INICIAR JUEGO y CARGAR JUEGO
+
             if (i != 0 && i != 6) {
                 gameButtons[i].setEnabled(false);
             }
         }
+        buttonPanel.add(Box.createVerticalGlue());
+
 
     }
 
@@ -135,32 +245,16 @@ public class MainWindow extends JFrame {
         timer.start();
     }
 
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(150, 30));
-        button.setFont(new Font("Arial", Font.PLAIN, 12));
-        button.setFocusPainted(false);
-        return button;
-    }
+        
+    
 
     private void layoutComponents() {
-        // Agregar componentes al panel principal
+        // Añadir los paneles principales
         mainPanel.add(topPanel, BorderLayout.NORTH);
-        
-        // Panel central con el juego y panel de dígitos
-        JPanel centerPanel = new JPanel(new BorderLayout(10, 0));
-        centerPanel.add(gameBoard, BorderLayout.CENTER);
-        centerPanel.add(digitPanel, BorderLayout.EAST);
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        
-        // Panel de botones a la derecha
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.add(buttonPanel, BorderLayout.NORTH);
-        mainPanel.add(rightPanel, BorderLayout.EAST);
-        
-        // Agregar el panel principal al frame
-        setContentPane(mainPanel);
+        mainPanel.add(gamePanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.EAST);
     }
+
 
     public void initializeControllers(ConfigurationController configController,
                                       GameController gameController,
@@ -172,11 +266,49 @@ public class MainWindow extends JFrame {
         
         setupButtonListeners();
         startTimer();
+                                      }
+    private void setupListeners() {
+        // Listener para el panel de dígitos
+        digitPanel.addDigitSelectListener(digit -> {
+            if (gameController != null) {
+                gameController.setSelectedDigit(digit);
+            }
+        });
+        
+        // Configurar listeners de la barra de menú
+        setupMenuListeners();
+        
+        // Los listeners de los botones se configurarán cuando se inicialicen los controladores
+    }
+
+    private void setupMenuListeners() {
+        menuBar.addConfigListener(e -> {
+            if (configController != null) {
+                configController.showConfigDialog();
+            }
+        });
+        
+        menuBar.addPlayListener(e -> {
+            if (gameController != null) {
+                gameController.startGame();
+            }
+        });
+        
+        menuBar.addTop10Listener(e -> {
+            if (scoreController != null) {
+                scoreController.showTop10();
+            }
+        });
+        
+        menuBar.addHelpListener(e -> showHelp());
+        menuBar.addAboutListener(e -> showAbout());
     }
 
 
 
     private void setupButtonListeners() {
+        if (gameController == null) return;
+        
         gameButtons[0].addActionListener(e -> gameController.startGame());
         gameButtons[1].addActionListener(e -> gameController.undoMove());
         gameButtons[2].addActionListener(e -> gameController.redoMove());
@@ -184,6 +316,56 @@ public class MainWindow extends JFrame {
         gameButtons[4].addActionListener(e -> gameController.endGame());
         gameButtons[5].addActionListener(e -> gameController.saveGame());
         gameButtons[6].addActionListener(e -> gameController.loadGame());
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.PLAIN, 14));
+        button.setForeground(Color.WHITE);
+        button.setBackground(PRIMARY_COLOR);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setMaximumSize(new Dimension(200, 40));
+        button.setPreferredSize(new Dimension(200, 40));
+        
+        // Efectos hover
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    button.setBackground(BUTTON_HOVER_COLOR);
+                }
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    button.setBackground(PRIMARY_COLOR);
+                }
+            }
+        });
+        
+        return button;
+    }
+
+    private JLabel createStyledLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setForeground(new Color(33, 33, 33));
+        return label;
+    }
+
+    // Métodos públicos para controladores y actualizaciones
+
+    public void initializeControllers(
+            ConfigurationController configController,
+            GameController gameController,
+            ScoreController scoreController) {
+        this.configController = configController;
+        this.gameController = gameController;
+        this.scoreController = scoreController;
+        
+        setupButtonListeners();
+        gameBoard.addCellClickListener((row, col) -> 
+            gameController.handleCellClick(row, col));
     }
 
     public void enableGameButtons(boolean enabled) {
@@ -195,11 +377,12 @@ public class MainWindow extends JFrame {
         gameButtons[6].setEnabled(!enabled);
     }
 
-    public void setTimer(String time) {
-        timerLabel.setText(time);
+    public void updateTimer(int hours, int minutes, int seconds) {
+        timerDisplay.updateTime(hours, minutes, seconds);
     }
 
     public void setPlayerName(String name) {
+        this.playerName = name;
         playerNameLabel.setText("Nombre del jugador: " + name);
     }
 
@@ -207,5 +390,55 @@ public class MainWindow extends JFrame {
         levelLabel.setText("NIVEL " + level.toUpperCase());
     }
 
+    public GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    public DigitPanel getDigitPanel() {
+        return digitPanel;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration config) {
+        this.configuration = config;
+        updateConfigurationView();
+    }
+
+    private void updateConfigurationView() {
+        // Actualizar la vista según la nueva configuración
+        if (configuration.getDigitPanelPosition().equals(GameConstants.PANEL_RIGHT)) {
+            gamePanel.removeAll();
+            gamePanel.add(gameBoard, BorderLayout.CENTER);
+            gamePanel.add(digitPanel, BorderLayout.EAST);
+        } else {
+            gamePanel.removeAll();
+            gamePanel.add(gameBoard, BorderLayout.CENTER);
+            gamePanel.add(digitPanel, BorderLayout.WEST);
+        }
+        gamePanel.revalidate();
+        gamePanel.repaint();
+    }
+
+    private void showHelp() {
+        // Mostrar el manual de usuario
+    }
+
+    private void showAbout() {
+        JOptionPane.showMessageDialog(this,
+            "Futoshiki v1.0\n" +
+            "Fecha: Noviembre 2024\n" +
+            "TEC - Programación Orientada a Objetos\n" +
+            "Desarrollado por: Luis y Andres",
+            "Acerca de",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 
 }
