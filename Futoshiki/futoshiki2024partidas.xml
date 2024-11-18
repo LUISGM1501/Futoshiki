@@ -15,7 +15,7 @@
         <cuadricula>3</cuadricula>
         <desigualdades>maf,0,0</desigualdades>
         <desigualdades>mac,0,1</desigualdades>
-        <constantes>3,0,2</constantes>
+        <constantes>3,0,0</constantes>
     </partida>
 
     <!-- 3x3 Difícil -->
@@ -25,7 +25,7 @@
         <desigualdades>maf,0,0</desigualdades>
         <desigualdades>mec,1,1</desigualdades>
         <desigualdades>mac,1,2</desigualdades>
-        <constantes>2,0,0</constantes>
+        <constantes>3,0,0</constantes>
     </partida>
 
     <!-- 4x4 Fácil -->
