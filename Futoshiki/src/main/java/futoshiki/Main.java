@@ -59,9 +59,6 @@ public class Main {
                 splash.dispose();
                 loginDialog.setVisible(true);
 
-                ConfigurationDialog configDialog = new ConfigurationDialog(null);
-                configDialog.setVisible(true);
-                config = configDialog.getConfiguration();
 
                 // Cuando se cierra el login, configurar y mostrar ventana principal
                 if (loginDialog.isLoggedIn()) {
@@ -76,7 +73,7 @@ public class Main {
 
                 mainWindow.initializeControllers(configController, gameController, scoreController, timerController);
                 mainWindow.setPlayerName(config.getPlayerName());
-                mainWindow.setLevel(config.getDifficulty());
+
 
                 mainWindow.setVisible(true);
 

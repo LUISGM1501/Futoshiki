@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
+import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.GameState;
 import model.game.Move;
@@ -25,12 +26,14 @@ public class GameController {
     private GameTimer timer;
     private Map<String, List<GameData>> availableGames;
     private Random random;
+    private Configuration config;
     private Stack<Move> moves;
     private Stack<Move> redoMoves;
     private int selectedDigit;
     private boolean isGameStarted;
     private Top10Manager top10Manager;
     private long startTime;
+    private String timerType;
 
     public GameController(GameState gameState, MainWindow view) {
         this.gameState = gameState;
@@ -51,12 +54,26 @@ public class GameController {
     }
 
     public void startGame() {
+        view.stopTimer();
+        view.restartTimer();
         GameSetupDialog dialog = new GameSetupDialog(view);
         dialog.setVisible(true);
-
+        config  = new Configuration();
         if (dialog.isConfirmed()) {
             String selectedDifficulty = dialog.getSelectedDifficulty();
             int selectedSize = dialog.getSelectedSize();
+            config.setTimerType(dialog.getTimerType());
+            if(dialog.getTimerType() == "Temporizador")
+            {
+                config.setTimerHours(dialog.getHours());
+                config.setTimerMinutes(dialog.getMinutes());
+                config.setTimerSeconds(dialog.getSeconds());
+            }else
+            {
+                config.setTimerHours(0);
+                config.setTimerMinutes(0);
+                config.setTimerSeconds(0);
+            }
 
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
             if (availableGamesForConfig == null || availableGamesForConfig.isEmpty()) {
@@ -81,6 +98,7 @@ public class GameController {
 
             // Inicializar nuevo juego
             initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
+
         }
     }
 
@@ -101,9 +119,11 @@ public class GameController {
         
         // Actualizar la vista
         view.setLevel(difficulty);
+        view.setTimerType(config);
         view.enableGameButtons(true);
         view.getGameBoard().setPlayable(true);
         view.getGameBoard().setSize(size);
+        view.startTimer();
         
         // Inicializar timer y tablero
         startTimer();
@@ -348,7 +368,7 @@ public class GameController {
 
     private void handleGameCompletion() {
         stopTimer();
-        
+        view.stopTimer();
         JOptionPane.showMessageDialog(view,
             MessageConstants.SUCCESS_GAME_COMPLETED,
             "¡Felicitaciones!",

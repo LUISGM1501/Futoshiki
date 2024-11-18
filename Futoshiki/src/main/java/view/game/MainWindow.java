@@ -27,6 +27,7 @@ import controller.game.GameController;
 import controller.timer.TimerController;
 import controller.top10.ScoreController;
 import model.config.Configuration;
+import persistence.GameSaver;
 import util.constants.GameConstants;
 import view.components.TimerDisplay;
 
@@ -73,6 +74,7 @@ public class MainWindow extends JFrame {
     private ConfigurationController configController;
     private GameController gameController;
     private ScoreController scoreController;
+    private GameSaver gamseSaver;
 
     private TimerController timerController;
 
@@ -253,7 +255,13 @@ public class MainWindow extends JFrame {
 
     }
 
-    private void startTimer() {
+    public void setTimerType(Configuration config)
+    {
+        timerController.setValores(config);
+    }
+
+
+    public void startTimer() {
         timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -265,7 +273,23 @@ public class MainWindow extends JFrame {
         timer.start();
     }
 
-        
+    public void restartTimer()
+    {
+        if(timer != null)
+        {
+            timerController.setSecondsPassed(0);
+            timerController.setMinutesPassed(0);
+            timerController.setHoursPassed(0);
+            setTimer();
+        }
+    }
+
+    public void stopTimer()
+    {
+        if(timer != null){timer.stop();}
+
+    }
+
     private void setTimer()
     {
         timerDisplay.updateTime(timerController.getHoursPassed(), timerController.getMinutesPassed(), timerController.getSecondsPassed());
@@ -290,7 +314,7 @@ public class MainWindow extends JFrame {
         setupButtonListeners();
         gameBoard.addCellClickListener((row, col) ->
                 gameController.handleCellClick(row, col));
-        startTimer();
+
                                       }
     private void setupListeners() {
         // Listener para el panel de dígitos
@@ -324,9 +348,12 @@ public class MainWindow extends JFrame {
                 scoreController.showTop10();
             }
         });
-        
+
+
+
         menuBar.addHelpListener(e -> showHelp());
         menuBar.addAboutListener(e -> showAbout());
+
     }
 
 
