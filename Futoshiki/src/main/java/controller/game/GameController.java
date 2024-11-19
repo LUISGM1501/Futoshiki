@@ -30,7 +30,11 @@ public class GameController {
     private Stack<Move> moves;
     private Stack<Move> redoMoves;
     private int selectedDigit;
+    private int selectedSize;
+    private String selectedDifficulty;
+    private boolean isMultiNivel;
     private boolean isGameStarted;
+    private List<GameData> gamesForSize;
     private Top10Manager top10Manager;
     private long startTime;
     private String timerType;
@@ -60,9 +64,10 @@ public class GameController {
         dialog.setVisible(true);
         config  = new Configuration();
         if (dialog.isConfirmed()) {
-            String selectedDifficulty = dialog.getSelectedDifficulty();
-            int selectedSize = dialog.getSelectedSize();
+            selectedDifficulty = dialog.getSelectedDifficulty();
+            selectedSize = dialog.getSelectedSize();
             config.setTimerType(dialog.getTimerType());
+            isMultiNivel = dialog.isMultiNivel();
             if(dialog.getTimerType() == "Temporizador")
             {
                 config.setTimerHours(dialog.getHours());
@@ -84,7 +89,7 @@ public class GameController {
                 return;
             }
 
-            List<GameData> gamesForSize = availableGamesForConfig.stream()
+            gamesForSize = availableGamesForConfig.stream()
                 .filter(game -> game.getTamano() == selectedSize)
                 .toList();
 
@@ -366,36 +371,67 @@ public class GameController {
         }
     }
 
-    private void handleGameCompletion() {
-        stopTimer();
-        view.stopTimer();
-        JOptionPane.showMessageDialog(view,
-            MessageConstants.SUCCESS_GAME_COMPLETED,
-            "¡Felicitaciones!",
-            JOptionPane.INFORMATION_MESSAGE);
-            
-        // Calcular tiempo total
-        int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
-        
-        // Verificar si califica para el Top 10
-        if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds)) {
-            int hours = totalSeconds / 3600;
-            int minutes = (totalSeconds % 3600) / 60;
-            int seconds = totalSeconds % 60;
-            
-            top10Manager.addScore(new model.game.GameScore(
-                view.getPlayerName(),
-                hours,
-                minutes,
-                seconds,
-                gameState.getDifficulty(),
-                gameState.getBoard().getSize()
-            ));
+
+    private String nextDifficulty(String currentDifficulty)
+    {
+        switch (currentDifficulty)
+        {
+            case "Facil":
+                return "Intermedio";
+
+            case "Intermedio":
+                return "Dificil";
         }
-        
-        isGameStarted = false;
-        view.enableGameButtons(false);
-        view.getGameBoard().setPlayable(false);
+
+        return "Dificil";
+    }
+
+    private void handleGameCompletion() {
+        if(isMultiNivel)
+        {
+
+
+
+            selectedDifficulty = nextDifficulty(selectedDifficulty);
+
+            List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
+            gamesForSize = availableGamesForConfig.stream()
+                    .filter(game -> game.getTamano() == selectedSize)
+                    .toList();
+            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
+        }else
+        {
+            stopTimer();
+            view.stopTimer();
+            JOptionPane.showMessageDialog(view,
+                    MessageConstants.SUCCESS_GAME_COMPLETED,
+                    "¡Felicitaciones!",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            // Calcular tiempo total
+            int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
+
+            // Verificar si califica para el Top 10
+            if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds)) {
+                int hours = totalSeconds / 3600;
+                int minutes = (totalSeconds % 3600) / 60;
+                int seconds = totalSeconds % 60;
+
+                top10Manager.addScore(new model.game.GameScore(
+                        view.getPlayerName(),
+                        hours,
+                        minutes,
+                        seconds,
+                        gameState.getDifficulty(),
+                        gameState.getBoard().getSize()
+                ));
+            }
+
+            isGameStarted = false;
+            view.enableGameButtons(false);
+            view.getGameBoard().setPlayable(false);
+        }
+
     }
 
     private void startTimer() {
@@ -414,6 +450,9 @@ public class GameController {
         FutoshikiBoard board = gameState.getBoard();
         view.getGameBoard().updateBoard(board);
     }
+
+
+
 
     public boolean isGameStarted() {
         return isGameStarted;

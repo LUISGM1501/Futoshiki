@@ -8,6 +8,7 @@ public class GameSetupDialog extends JDialog {
     private String selectedDifficulty;
     private int selectedSize;
     private boolean confirmed;
+    private JCheckBox multiNivel;
     private ButtonGroup timerGroup;
     private JRadioButton chronoButton;
     private JRadioButton noTimerButton;
@@ -51,14 +52,18 @@ public class GameSetupDialog extends JDialog {
         chronoButton = new JRadioButton("Cronómetro");
         noTimerButton = new JRadioButton("No");
         timerButton = new JRadioButton("Temporizador");
+        multiNivel = new JCheckBox("Multinvel");
+
         timerGroup.add(chronoButton);
         timerGroup.add(noTimerButton);
         timerGroup.add(timerButton);
         chronoButton.setSelected(true);
+        typeTimerPanel.add(multiNivel);
         typeTimerPanel.add(chronoButton);
         typeTimerPanel.add(noTimerButton);
         typeTimerPanel.add(timerButton);
         mainPanel.add(typeTimerPanel);
+
 
 
         //Spinners de Tiempo
@@ -118,5 +123,11 @@ public class GameSetupDialog extends JDialog {
         if(timerButton.isSelected()){return timerButton.getText();}
         if(chronoButton.isSelected()){return chronoButton.getText();}
         return "";
+    }
+
+
+    public boolean isMultiNivel()
+    {
+        return multiNivel.isSelected();
     }
 }
