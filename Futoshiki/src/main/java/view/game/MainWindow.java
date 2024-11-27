@@ -250,6 +250,7 @@ public class MainWindow extends JFrame {
                 gameButtons[i].setEnabled(false);
             }
         }
+        gameButtons[6].setEnabled(true);
         buttonPanel.add(Box.createVerticalGlue());
 
 
@@ -288,6 +289,16 @@ public class MainWindow extends JFrame {
     {
         if(timer != null){timer.stop();}
 
+    }
+
+    public TimerController getTimer()
+    {
+        return timerController;
+    }
+
+    public void resumeTimer(TimerController tcGuardado)
+    {
+        timerDisplay.updateTime(tcGuardado.getHoursPassed(), tcGuardado.getMinutesPassed(), tcGuardado.getSecondsPassed());
     }
 
     private void setTimer()

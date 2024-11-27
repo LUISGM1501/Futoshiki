@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
+import controller.timer.TimerController;
 import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.GameState;
@@ -24,11 +25,15 @@ public class GameController {
     private GameState gameState;
     private MainWindow view;
     private GameTimer timer;
+    private TimerController tCGuardado;
     private Map<String, List<GameData>> availableGames;
     private Random random;
     private Configuration config;
     private Stack<Move> moves;
     private Stack<Move> redoMoves;
+    private int horas;
+    private int minutos;
+    private int segundos;
     private int selectedDigit;
     private int selectedSize;
     private String selectedDifficulty;
@@ -316,8 +321,11 @@ public class GameController {
         if (!isGameStarted) {
             return;
         }
-        
-        boolean saved = GameSaver.saveGame(gameState, view.getPlayerName());
+        tCGuardado = view.getTimer();
+        horas = tCGuardado.getHoursPassed();
+        minutos = tCGuardado.getMinutesPassed();
+        segundos = tCGuardado.getSecondsPassed();
+        boolean saved = GameSaver.saveGame(gameState, view.getPlayerName(), config);
         if (saved) {
             JOptionPane.showMessageDialog(view,
                 "Juego guardado exitosamente",
@@ -344,10 +352,12 @@ public class GameController {
             updateGameBoard();
             view.enableGameButtons(true);
             view.getGameBoard().setPlayable(true);
-            
-            // Restaurar el timer
-            //long elapsedTime = System.currentTimeMillis() - savedGame.getTimestamp();
-            //startTimer();
+
+            tCGuardado.setHoursPassed(horas);
+            tCGuardado.setMinutesPassed(minutos);
+            tCGuardado.setSecondsPassed(segundos);
+            view.resumeTimer(tCGuardado);
+            view.startTimer();
         } else {
             JOptionPane.showMessageDialog(view,
                 "No se encontró ningún juego guardado",

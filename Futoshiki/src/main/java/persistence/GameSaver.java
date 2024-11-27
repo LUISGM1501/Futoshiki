@@ -10,6 +10,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import model.config.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -23,7 +24,7 @@ public class GameSaver {
     
     // Guarda el estado actual del juego
     // @return true si se guardó correctamente
-    public static boolean saveGame(GameState gameState, String playerName) {
+    public static boolean saveGame(GameState gameState, String playerName, Configuration config) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -40,17 +41,23 @@ public class GameSaver {
             
             // Información del juego
             Element gameElement = doc.createElement("gameState");
-            
             // Dificultad
             Element difficultyElement = doc.createElement("difficulty");
             difficultyElement.setTextContent(gameState.getDifficulty());
             gameElement.appendChild(difficultyElement);
+            //Config
+            Element configElement = doc.createElement("config");
+            configElement.setTextContent(config.toString());
+            gameElement.appendChild(configElement);
             
             // Tablero
             Element boardElement = doc.createElement("board");
             FutoshikiBoard board = gameState.getBoard();
             boardElement.setAttribute("size", String.valueOf(board.getSize()));
-            
+
+
+
+
             // Guardar estado de cada celda
             for (int i = 0; i < board.getSize(); i++) {
                 for (int j = 0; j < board.getSize(); j++) {
@@ -112,17 +119,21 @@ public class GameSaver {
             
             // Verificar que el juego pertenece al jugador
             NodeList playerNodes = doc.getElementsByTagName("player");
+            /*
             if (playerNodes.getLength() > 0) {
                 String savedPlayer = playerNodes.item(0).getTextContent();
                 if (!savedPlayer.equals(playerName)) {
                     return null;
                 }
             }
-            
+            */
             // Cargar estado del juego
             Element gameElement = (Element) doc.getElementsByTagName("gameState").item(0);
             String difficulty = gameElement.getElementsByTagName("difficulty").item(0).getTextContent();
             String config = gameElement.getElementsByTagName("config").item(0).getTextContent();
+
+
+
             // Cargar tablero
             Element boardElement = (Element) gameElement.getElementsByTagName("board").item(0);
             int size = Integer.parseInt(boardElement.getAttribute("size"));
