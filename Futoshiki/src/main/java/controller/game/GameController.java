@@ -6,13 +6,12 @@ import java.util.Random;
 import java.util.Stack;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-import controller.timer.TimerController;
 import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.GameState;
 import model.game.Move;
-import model.timer.GameTimer;
 import persistence.GameSaver;
 import persistence.Top10Manager;
 import persistence.XMLHandler;
@@ -29,16 +28,11 @@ import controller.config.ConfigurationController;
 public class GameController {
     private GameState gameState;
     private MainWindow view;
-    private GameTimer timer;
-    private TimerController tCGuardado;
     private Map<String, List<GameData>> availableGames;
     private Random random;
     private Configuration config;
     private Stack<Move> moves;
     private Stack<Move> redoMoves;
-    private int horas;
-    private int minutos;
-    private int segundos;
     private int selectedDigit;
     private int selectedSize;
     private String selectedDifficulty;
@@ -47,8 +41,8 @@ public class GameController {
     private List<GameData> gamesForSize;
     private Top10Manager top10Manager;
     private long startTime;
-    private String timerType;
     private ConfigurationController configController;
+    private boolean canPlay;
 
     /**
      * Constructor del GameController.
@@ -67,6 +61,7 @@ public class GameController {
         this.selectedDigit = 0;
         this.isGameStarted = false;
         this.top10Manager = new Top10Manager();
+        this.canPlay = true;
         
         // Inicializar la configuración con la del ConfigurationController
         this.config = configController.getConfiguration();
@@ -428,10 +423,6 @@ public class GameController {
         if (!isGameStarted) {
             return;
         }
-        tCGuardado = view.getTimer();
-        horas = tCGuardado.getHoursPassed();
-        minutos = tCGuardado.getMinutesPassed();
-        segundos = tCGuardado.getSecondsPassed();
         boolean saved = GameSaver.saveGame(gameState, view.getPlayerName(), config);
         if (saved) {
             JOptionPane.showMessageDialog(view,
@@ -462,11 +453,6 @@ public class GameController {
             updateGameBoard();
             view.enableGameButtons(true);
             view.getGameBoard().setPlayable(true);
-
-            tCGuardado.setHoursPassed(horas);
-            tCGuardado.setMinutesPassed(minutos);
-            tCGuardado.setSecondsPassed(segundos);
-            view.resumeTimer(tCGuardado);
             view.startTimer();
         } else {
             JOptionPane.showMessageDialog(view,
@@ -486,7 +472,6 @@ public class GameController {
             JOptionPane.YES_NO_OPTION);
             
         if (option == JOptionPane.YES_OPTION) {
-            stopTimer();
             isGameStarted = false;
             view.enableGameButtons(false);
             view.getGameBoard().setPlayable(false);
@@ -513,8 +498,6 @@ public class GameController {
             
             if (solved) {
                 updateGameBoard();
-                stopTimer();
-                view.stopTimer();
                 JOptionPane.showMessageDialog(view,
                     "¡Juego resuelto!",
                     "Solución",
@@ -615,8 +598,6 @@ public class GameController {
      * @param message Mensaje a mostrar.
      */
     private void finishGame(String message) {
-        stopTimer();
-        view.stopTimer();
         JOptionPane.showMessageDialog(view,
                 message,
                 "¡Felicitaciones!",

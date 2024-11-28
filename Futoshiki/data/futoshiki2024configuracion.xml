@@ -3,10 +3,10 @@
   <tamano>5</tamano>
   <dificultad>Facil</dificultad>
   <multinivel>false</multinivel>
-  <tipoTimer>Cronómetro</tipoTimer>
+  <tipoTimer>Temporizador</tipoTimer>
   <horasTimer>0</horasTimer>
   <minutosTimer>0</minutosTimer>
-  <segundosTimer>0</segundosTimer>
+  <segundosTimer>5</segundosTimer>
   <posicionPanel>right</posicionPanel>
   <jugador/>
 </configuracion>

@@ -268,12 +268,9 @@ public class MainWindow extends JFrame {
      * Inicia el temporizador.
      */
     public void startTimer() {
-        timer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                timerController.actualizarTiempo();
-                setTimer();
-            }
+        timer = new Timer(1000, e -> {
+            timerController.actualizarTiempo();
+            setTimer();
         });
         timer.start();
     }
@@ -283,10 +280,7 @@ public class MainWindow extends JFrame {
      */
     public void restartTimer() {
         if (timer != null) {
-            timerController.setSecondsPassed(0);
-            timerController.setMinutesPassed(0);
-            timerController.setHoursPassed(0);
-            setTimer();
+            timer.restart();
         }
     }
 

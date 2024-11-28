@@ -50,8 +50,6 @@ public class Main {
                 
                 // Crear y configurar controladores
                 ConfigurationController configController = new ConfigurationController(defaultConfig, mainWindow);
-                TimerController timerController = new TimerController();
-                
                 GameState gameState = new GameState(
                     new FutoshikiBoard(configController.getConfiguration().getGridSize()),
                     configController.getConfiguration().getDifficulty(),
@@ -60,6 +58,9 @@ public class Main {
                 
                 GameController gameController = new GameController(gameState, mainWindow, configController);
                 ScoreController scoreController = new ScoreController(mainWindow);
+                
+                // Crear TimerController con las referencias necesarias
+                TimerController timerController = new TimerController(mainWindow, gameController);
                 
                 // Inicializar la ventana principal con todos los controladores
                 mainWindow.initializeControllers(configController, gameController, scoreController, timerController);
