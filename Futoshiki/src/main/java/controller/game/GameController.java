@@ -425,15 +425,41 @@ public class GameController {
     }
 
     private void handleGameCompletion() {
-        if(isMultiNivel)
-        {
+
+        // Calcular tiempo total actual
+        int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
+        
+        // Verificar Top 10 y guardar si califica
+        if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds)) {
+            int hours = totalSeconds / 3600;
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
+            
+            top10Manager.addScore(new model.game.GameScore(
+                view.getPlayerName(),
+                hours,
+                minutes,
+                seconds,
+                gameState.getDifficulty(),
+                gameState.getBoard().getSize()
+            ));
+        }
+
+        if(isMultiNivel) {
+            // Si estamos en nivel difícil, terminar el juego
+            if(selectedDifficulty.equals("Dificil")) {
+                finishGame("¡Felicitaciones! Has completado todos los niveles.");
+                return;
+            }
+            
+            // Avanzar al siguiente nivel
 
             selectedDifficulty = nextDifficulty(selectedDifficulty);
-
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
             gamesForSize = availableGamesForConfig.stream()
                     .filter(game -> game.getTamano() == selectedSize)
                     .toList();
+
             initializeNextGame(gamesForSize, selectedDifficulty, selectedSize);
         }else
         {
@@ -466,8 +492,20 @@ public class GameController {
             isGameStarted = false;
             view.enableGameButtons(false);
             view.getGameBoard().setPlayable(false);
-        }
+            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
 
+        }
+    }
+    private void finishGame(String message) {
+        stopTimer();
+        view.stopTimer();
+        JOptionPane.showMessageDialog(view,
+                message,
+                "¡Felicitaciones!",
+                JOptionPane.INFORMATION_MESSAGE);
+        isGameStarted = false;
+        view.enableGameButtons(false);
+        view.getGameBoard().setPlayable(false);
     }
 
     private void startTimer() {

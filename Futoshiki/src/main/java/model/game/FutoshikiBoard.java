@@ -143,16 +143,16 @@ public class FutoshikiBoard {
     public void setInequality(String type, int row, int col) {
         switch (type) {
             case "maf": // mayor que en fila
-                cells[row][col].creacionDesigualdades(2);
+                cells[row][col].creacionDesigualdades(2); // Para >
                 break;
             case "mef": // menor que en fila
-                cells[row][col].creacionDesigualdades(1);
+                cells[row][col].creacionDesigualdades(1); // Para <
                 break;
             case "mac": // mayor que en columna
-                cells[row][col].creacionDesigualdades(4);
+                cells[row][col].creacionDesigualdades(4); // Para v
                 break;
             case "mec": // menor que en columna
-                cells[row][col].creacionDesigualdades(3);
+                cells[row][col].creacionDesigualdades(3); // Para ^
                 break;
         }
     }

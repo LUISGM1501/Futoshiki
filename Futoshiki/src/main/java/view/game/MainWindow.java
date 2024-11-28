@@ -8,18 +8,11 @@ import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-
+import view.dialogs.HelpDialog;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import controller.config.ConfigurationController;
@@ -67,7 +60,10 @@ public class MainWindow extends JFrame {
         "BORRAR JUEGO",
         "TERMINAR JUEGO",
         "GUARDAR JUEGO",
-        "CARGAR JUEGO"
+        "CARGAR JUEGO", 
+        "TOP 10",
+        "AYUDA",
+        "ACERCA DE"
     };
     
     // Controladores
@@ -246,13 +242,12 @@ public class MainWindow extends JFrame {
             buttonPanel.add(Box.createVerticalStrut(5));
             buttonPanel.add(gameButtons[i]);
 
-            if (i != 0 && i != 6) {
+            if (i != 0 && i != 6 && i != 8 && i != 9) {
                 gameButtons[i].setEnabled(false);
             }
         }
         gameButtons[6].setEnabled(true);
         buttonPanel.add(Box.createVerticalGlue());
-
 
     }
 
@@ -362,8 +357,6 @@ public class MainWindow extends JFrame {
 
 
 
-        menuBar.addHelpListener(e -> showHelp());
-        menuBar.addAboutListener(e -> showAbout());
 
     }
 
@@ -379,6 +372,9 @@ public class MainWindow extends JFrame {
         gameButtons[4].addActionListener(e -> gameController.endGame());
         gameButtons[5].addActionListener(e -> gameController.saveGame());
         gameButtons[6].addActionListener(e -> gameController.loadGame());
+        gameButtons[7].addActionListener(e -> scoreController.showTop10());
+        gameButtons[8].addActionListener(e -> showHelp());
+        gameButtons[9].addActionListener(e -> showAbout());
     }
 
     private JButton createStyledButton(String text) {
@@ -432,12 +428,16 @@ public class MainWindow extends JFrame {
     }
 
     public void enableGameButtons(boolean enabled) {
-        for (int i = 1; i < gameButtons.length - 1; i++) {
+        for (int i = 1; i < gameButtons.length - 4; i++) {
             gameButtons[i].setEnabled(enabled);
         }
         // INICIAR JUEGO y CARGAR JUEGO se comportan al revés
         gameButtons[0].setEnabled(!enabled);
         gameButtons[6].setEnabled(!enabled);
+        // TOP 10, AYUDA y ACERCA DE siempre habilitados
+        gameButtons[7].setEnabled(true);
+        gameButtons[8].setEnabled(true);
+        gameButtons[9].setEnabled(true);
     }
 
     public void updateTimer(int hours, int minutes, int seconds) {
@@ -490,7 +490,8 @@ public class MainWindow extends JFrame {
     }
 
     private void showHelp() {
-        // Mostrar el manual de usuario
+        HelpDialog helpDialog = new HelpDialog(this);
+        helpDialog.setVisible(true);
     }
 
     private void showAbout() {
@@ -498,7 +499,8 @@ public class MainWindow extends JFrame {
             "Futoshiki v1.0\n" +
             "Fecha: Noviembre 2024\n" +
             "TEC - Programación Orientada a Objetos\n" +
-            "Desarrollado por: Luis y Andres",
+            "Desarrollado por: Luis Urbina Salazar y Andres Hernandez Campos\n" + 
+            "Carnet: 2023156802 y 2024096912 respectivamente",
             "Acerca de",
             JOptionPane.INFORMATION_MESSAGE
         );

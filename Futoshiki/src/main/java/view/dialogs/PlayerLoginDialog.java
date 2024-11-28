@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -21,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
@@ -87,6 +89,7 @@ public class PlayerLoginDialog extends JDialog {
         
         // Panel inferior
         playAsGuestButton = createActionButton("Continuar como Invitado");
+        playAsGuestButton.setForeground(Color.BLACK);
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.setBackground(BACKGROUND_COLOR);
         bottomPanel.setBorder(new EmptyBorder(10, 0, 15, 0));
@@ -106,7 +109,22 @@ public class PlayerLoginDialog extends JDialog {
         
         // Contraseña
         JLabel passLabel = createLabel("Contraseña:", 30, 110);
-        loginPasswordField = createPasswordField(30, 135, 270, 35);
+        JPanel passwordPanel = new JPanel(new BorderLayout(5, 0));
+        loginPasswordField = new JPasswordField();
+        JToggleButton showPasswordButton = new JToggleButton("👁");
+        showPasswordButton.setFocusPainted(false);
+        
+        showPasswordButton.addActionListener(e -> {
+            if (showPasswordButton.isSelected()) {
+                loginPasswordField.setEchoChar((char)0); // Mostrar texto
+            } else {
+                loginPasswordField.setEchoChar('●'); // Ocultar texto
+            }
+        });
+        
+        passwordPanel.add(loginPasswordField, BorderLayout.CENTER);
+        passwordPanel.add(showPasswordButton, BorderLayout.EAST);
+        passwordPanel.setBounds(30, 135, 270, 35);
         
         // Olvidé contraseña
         forgotPasswordButton = createLinkButton("¿Olvidaste tu contraseña?");
@@ -115,11 +133,12 @@ public class PlayerLoginDialog extends JDialog {
         // Botón login
         loginButton = createActionButton("Iniciar Sesión");
         loginButton.setBounds(30, 230, 270, 40);
+        loginButton.setForeground(Color.BLACK); // Cambiar color de texto a negro
         
         panel.add(userLabel);
         panel.add(loginNameField);
         panel.add(passLabel);
-        panel.add(loginPasswordField);
+        panel.add(passwordPanel);
         panel.add(forgotPasswordButton);
         panel.add(loginButton);
         
@@ -136,7 +155,22 @@ public class PlayerLoginDialog extends JDialog {
         
         // Contraseña
         JLabel passLabel = createLabel("Contraseña:", 30, 110);
-        registerPasswordField = createPasswordField(30, 135, 270, 35);
+        JPanel regPasswordPanel = new JPanel(new BorderLayout(5, 0));
+        registerPasswordField = new JPasswordField();
+        JToggleButton showRegPasswordButton = new JToggleButton("👁");
+        showRegPasswordButton.setFocusPainted(false);
+        
+        showRegPasswordButton.addActionListener(e -> {
+            if (showRegPasswordButton.isSelected()) {
+                registerPasswordField.setEchoChar((char)0);
+            } else {
+                registerPasswordField.setEchoChar('●');
+            }
+        });
+        
+        regPasswordPanel.add(registerPasswordField, BorderLayout.CENTER);
+        regPasswordPanel.add(showRegPasswordButton, BorderLayout.EAST);
+        regPasswordPanel.setBounds(30, 135, 270, 35);
         
         // Email
         JLabel emailLabel = createLabel("Email:", 30, 190);
@@ -145,11 +179,12 @@ public class PlayerLoginDialog extends JDialog {
         // Botón registro
         registerButton = createActionButton("Registrarse");
         registerButton.setBounds(30, 280, 270, 40);
+        registerButton.setForeground(Color.BLACK); // Cambiar color de texto a negro
         
         panel.add(userLabel);
         panel.add(registerNameField);
         panel.add(passLabel);
-        panel.add(registerPasswordField);
+        panel.add(regPasswordPanel);
         panel.add(emailLabel);
         panel.add(registerEmailField);
         panel.add(registerButton);
@@ -258,6 +293,8 @@ public class PlayerLoginDialog extends JDialog {
     private void handleLogin() {
         String name = loginNameField.getText();
         String password = new String(loginPasswordField.getPassword());
+
+        System.out.println("Intentando login con usuario: " + name + " y contraseña: " + password);
         
         String error = playerManager.login(name, password);
         if (error == null) {
@@ -297,14 +334,52 @@ public class PlayerLoginDialog extends JDialog {
             "Ingresa tu nombre de usuario para recuperar la contraseña:");
             
         if (name != null && !name.trim().isEmpty()) {
-            String error = playerManager.initiatePasswordRecovery(name);
+            String result = playerManager.initiatePasswordRecovery(name);
+            // Mostrar el token directamente
+            JOptionPane.showMessageDialog(this,
+                "Tu token de recuperación es: " + result + "\n" +
+                "Por favor, usa este token para restablecer tu contraseña.",
+                "Token de Recuperación",
+                JOptionPane.INFORMATION_MESSAGE);
+
+            System.out.println("Token de recuperación: " + result);
+            // Después de mostrar el token, abrir diálogo para resetear contraseña
+            showPasswordResetDialog(name);
+        }
+    }
+
+    private void showPasswordResetDialog(String username) {
+        JPanel panel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(boxLayout);
+        
+        JTextField tokenField = new JTextField(20);
+        JPasswordField newPasswordField = new JPasswordField(20);
+        
+        panel.add(new JLabel("Token de recuperación:"));
+        panel.add(tokenField);
+        panel.add(new JLabel("Nueva contraseña:"));
+        panel.add(newPasswordField);
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, 
+            "Restablecer Contraseña", 
+            JOptionPane.OK_CANCEL_OPTION);
+            
+        if (result == JOptionPane.OK_OPTION) {
+            String token = tokenField.getText();
+            String newPassword = new String(newPasswordField.getPassword());
+            
+            String error = playerManager.completePasswordRecovery(username, token, newPassword);
             if (error == null) {
                 JOptionPane.showMessageDialog(this,
-                    "Se ha enviado un email con las instrucciones de recuperación.",
-                    "Recuperación de contraseña",
+                    "Contraseña actualizada exitosamente",
+                    "Éxito",
                     JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                    error,
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
     }

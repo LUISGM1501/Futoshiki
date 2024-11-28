@@ -18,7 +18,7 @@ public class ScoreController {
 
     public ScoreController(JFrame mainWindow) {
         this.mainWindow = mainWindow;
-        this.view = new ScoreboardView();
+        this.view = ScoreboardView.getInstance();
         this.top10Manager = Top10Manager.getInstance();
     }
 
@@ -49,6 +49,7 @@ public class ScoreController {
     }
 
     public void showTop10() {
+        view.updateScores();
         JDialog dialog = new JDialog(mainWindow, "Top 10", true);
         dialog.setContentPane(view);
         dialog.pack();

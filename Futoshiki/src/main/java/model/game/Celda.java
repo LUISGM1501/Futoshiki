@@ -1,5 +1,7 @@
 package model.game;
 
+import util.constants.GameConstants;
+
 public class Celda {
     private int valor;
     private String desDer;
@@ -18,32 +20,32 @@ public class Celda {
     public void creacionDesigualdades(int version) {
         switch(version) {
             case 1:
-                desDer = "<";
+                desDer = GameConstants.SYMBOL_LESSER;  // "<"
                 break;
             case 2:
-                desDer = ">";
+                desDer = GameConstants.SYMBOL_GREATER; // ">"
                 break;
             case 3:
-                desAbajo = "^";
+                desAbajo = GameConstants.SYMBOL_LESSER_COL; // "^"
                 break;
             case 4:
-                desAbajo = "v";
+                desAbajo = GameConstants.SYMBOL_GREATER_COL; // "v"
                 break;
             case 5:
-                desDer = "<";
-                desAbajo = "^";
+                desDer = GameConstants.SYMBOL_LESSER;
+                desAbajo = GameConstants.SYMBOL_LESSER_COL;
                 break;
             case 6:
-                desDer = "<";
-                desAbajo = "v";
+                desDer = GameConstants.SYMBOL_LESSER;
+                desAbajo = GameConstants.SYMBOL_GREATER_COL;
                 break;
             case 7:
-                desDer = ">";
-                desAbajo = "^";
+                desDer = GameConstants.SYMBOL_GREATER;
+                desAbajo = GameConstants.SYMBOL_LESSER_COL;
                 break;
             case 8:
-                desDer = ">";
-                desAbajo = "v";
+                desDer = GameConstants.SYMBOL_GREATER;
+                desAbajo = GameConstants.SYMBOL_GREATER_COL;
                 break;
             default:
                 desDer = " ";

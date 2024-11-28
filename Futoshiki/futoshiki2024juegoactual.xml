@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <savedGame>
-  <player>Invitado</player>
+  <player>Luis</player>
   <gameState>
-    <difficulty>Intermedio</difficulty>
-    <config>model.config.Configuration@42ba3d1b</config>
+
+    <difficulty>Facil</difficulty>
+    <config>model.config.Configuration@93b74d</config>
     <board size="3">
       <cell col="0" constant="true" rightInequality="&gt;" row="0" value="3"/>
       <cell bottomInequality="v" col="1" constant="false" row="0" value="2"/>
