@@ -112,6 +112,34 @@ public class GameController {
         }
     }
 
+    private void initializeNextGame(List<GameData> gamesForSize, String difficulty, int size) {
+        // Seleccionar partida aleatoria
+        GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
+        FutoshikiBoard board = createBoard(selectedGame);
+
+        // Configurar estado del juego
+        gameState.setBoard(board);
+        gameState.setDifficulty(difficulty);
+
+        // Reiniciar estructuras de control
+        moves.clear();
+        redoMoves.clear();
+        isGameStarted = true;
+        startTime = System.currentTimeMillis();
+
+        // Actualizar la vista
+        view.setLevel(difficulty);
+        view.setTimerType(config);
+        view.enableGameButtons(true);
+        view.getGameBoard().setPlayable(true);
+        view.getGameBoard().setSize(size);
+        //view.startTimer();
+
+        // Inicializar timer y tablero
+        //startTimer();
+        updateGameBoard();
+    }
+
     private void initializeNewGame(List<GameData> gamesForSize, String difficulty, int size) {
         // Seleccionar partida aleatoria
         GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
@@ -400,15 +428,13 @@ public class GameController {
         if(isMultiNivel)
         {
 
-
-
             selectedDifficulty = nextDifficulty(selectedDifficulty);
 
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
             gamesForSize = availableGamesForConfig.stream()
                     .filter(game -> game.getTamano() == selectedSize)
                     .toList();
-            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
+            initializeNextGame(gamesForSize, selectedDifficulty, selectedSize);
         }else
         {
             stopTimer();

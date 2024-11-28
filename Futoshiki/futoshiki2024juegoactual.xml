@@ -2,18 +2,18 @@
 <savedGame>
   <player>Invitado</player>
   <gameState>
-    <difficulty>Facil</difficulty>
-    <config>model.config.Configuration@4da24967</config>
+    <difficulty>Intermedio</difficulty>
+    <config>model.config.Configuration@42ba3d1b</config>
     <board size="3">
-      <cell col="0" constant="true" rightInequality="&gt;" row="0" value="2"/>
-      <cell col="1" constant="false" row="0" value="1"/>
+      <cell col="0" constant="true" rightInequality="&gt;" row="0" value="3"/>
+      <cell bottomInequality="v" col="1" constant="false" row="0" value="2"/>
       <cell col="2" constant="false" row="0" value="0"/>
-      <cell col="0" constant="false" row="1" value="1"/>
-      <cell col="1" constant="false" row="1" value="0"/>
+      <cell col="0" constant="false" row="1" value="0"/>
+      <cell col="1" constant="false" row="1" value="1"/>
       <cell col="2" constant="false" row="1" value="0"/>
       <cell col="0" constant="false" row="2" value="0"/>
       <cell col="1" constant="false" row="2" value="0"/>
-      <cell col="2" constant="true" row="2" value="1"/>
+      <cell col="2" constant="false" row="2" value="0"/>
     </board>
   </gameState>
 </savedGame>
