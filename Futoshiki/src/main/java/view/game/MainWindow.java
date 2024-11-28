@@ -121,61 +121,20 @@ public class MainWindow extends JFrame {
         });
     }
 
-
-
     private void createComponents() {
-        // Barra de menú
+        // Crear barra de menú primero
         menuBar = new MenuBar();
         setJMenuBar(menuBar.getMenuBar());
+
+        // Crear panel de botones antes que el panel de juego
+        createButtonPanel();
 
         // Panel superior
         createTopPanel();
 
-        // Panel de juego
+        // Panel de juego (que ahora puede usar buttonPanel)
         createGamePanel();
-
-        // Panel de botones
-        createButtonPanel();
     }
-
-
-
-
-    private void initializeComponents() {
-
-        //Lo creamos arriba para poder utilizar su tecto en timerLabel
-        timerDisplay = new TimerDisplay();
-
-        // Inicializar el panel principal
-        mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        
-        // Panel superior
-        topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
-        levelLabel = new JLabel("NIVEL FÁCIL");
-        levelLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        playerNameLabel = new JLabel("Nombre del jugador:");
-        timerLabel = new JLabel(timerDisplay.toString());
-        
-        topPanel.add(levelLabel);
-        topPanel.add(playerNameLabel);
-        topPanel.add(timerLabel);
-        
-        // Panel del juego
-        gamePanel = new JPanel(new BorderLayout());
-        gamePanel.setPreferredSize(new Dimension(500, 500));
-        gamePanel.setBackground(Color.WHITE);
-        
-        // Crear la barra de menú
-        menuBar = new MenuBar();
-        setJMenuBar(menuBar.getMenuBar());
-
-        // Crear paneles principales
-        gameBoard = new GameBoard(5);
-        digitPanel = new DigitPanel();
-
-    }
-
 
     private void createTopPanel() {
         // Panel superior
@@ -219,13 +178,29 @@ public class MainWindow extends JFrame {
         // Panel de dígitos
         digitPanel = new DigitPanel();
 
+        // Panel contenedor izquierdo/derecho que tendrá los dígitos y botones
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        sidePanel.setBackground(BACKGROUND_COLOR);
+        sidePanel.add(digitPanel);
+        sidePanel.add(buttonPanel);
+
         // Colocar según configuración
-        if (configuration.getDigitPanelPosition().equals(GameConstants.PANEL_RIGHT)) {
+        gamePanel.add(gameBoard, BorderLayout.CENTER);
+        
+        // Remover paneles existentes para evitar duplicados
+        if (mainPanel.getComponentCount() > 0) {
+            mainPanel.remove(buttonPanel);
+            gamePanel.removeAll();
+        }
+
+        // Agregar los paneles en la posición correcta
+        if (configuration.getDigitPanelPosition().equals("left")) {
+            mainPanel.add(sidePanel, BorderLayout.WEST);
             gamePanel.add(gameBoard, BorderLayout.CENTER);
-            gamePanel.add(digitPanel, BorderLayout.EAST);
         } else {
+            mainPanel.add(sidePanel, BorderLayout.EAST);
             gamePanel.add(gameBoard, BorderLayout.CENTER);
-            gamePanel.add(digitPanel, BorderLayout.WEST);
         }
     }
 
@@ -248,14 +223,12 @@ public class MainWindow extends JFrame {
         }
         gameButtons[6].setEnabled(true);
         buttonPanel.add(Box.createVerticalGlue());
-
     }
 
     public void setTimerType(Configuration config)
     {
         timerController.setValores(config);
     }
-
 
     public void startTimer() {
         timer = new Timer(1000, new ActionListener() {
@@ -302,12 +275,11 @@ public class MainWindow extends JFrame {
     }
 
     private void layoutComponents() {
-        // Añadir los paneles principales
+        // Añadir los paneles principales en orden
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(gamePanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.EAST);
+        // No necesitamos añadir buttonPanel aquí porque ya se añadió en createGamePanel
     }
-
 
     public void initializeControllers(ConfigurationController configController,
                                       GameController gameController,
@@ -354,13 +326,7 @@ public class MainWindow extends JFrame {
                 scoreController.showTop10();
             }
         });
-
-
-
-
     }
-
-
 
     private void setupButtonListeners() {
         if (gameController == null) return;
@@ -474,17 +440,34 @@ public class MainWindow extends JFrame {
         updateConfigurationView();
     }
 
-    private void updateConfigurationView() {
+    public void updateConfigurationView() {
         // Actualizar la vista según la nueva configuración
-        if (configuration.getDigitPanelPosition().equals(GameConstants.PANEL_RIGHT)) {
-            gamePanel.removeAll();
+        mainPanel.removeAll();
+        gamePanel.removeAll();
+
+        // Recrear el panel lateral con dígitos y botones
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        sidePanel.setBackground(BACKGROUND_COLOR);
+        sidePanel.add(digitPanel);
+        sidePanel.add(buttonPanel);
+
+        // Añadir componentes en el orden correcto
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(gamePanel, BorderLayout.CENTER);
+        
+        // Colocar el panel lateral según la configuración
+        if (configuration.getDigitPanelPosition().equals("left")) {
+            mainPanel.add(sidePanel, BorderLayout.WEST);
             gamePanel.add(gameBoard, BorderLayout.CENTER);
-            gamePanel.add(digitPanel, BorderLayout.EAST);
         } else {
-            gamePanel.removeAll();
+            mainPanel.add(sidePanel, BorderLayout.EAST);
             gamePanel.add(gameBoard, BorderLayout.CENTER);
-            gamePanel.add(digitPanel, BorderLayout.WEST);
         }
+
+        // Actualizar la interfaz
+        mainPanel.revalidate();
+        mainPanel.repaint();
         gamePanel.revalidate();
         gamePanel.repaint();
     }

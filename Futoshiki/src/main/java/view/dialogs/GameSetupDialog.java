@@ -16,15 +16,19 @@ public class GameSetupDialog extends JDialog {
     private JSpinner hoursSpinner;
     private JSpinner minutesSpinner;
     private JSpinner secondsSpinner;
+    private ButtonGroup positionGroup;
+    private JRadioButton rightPositionButton;
+    private JRadioButton leftPositionButton;
+    private String selectedPosition;
 
     public GameSetupDialog(Frame owner) {
         super(owner, "Configuración de Partida", true);
         setLayout(new BorderLayout(10, 10));
-        setBounds(0, 0, 300, 400);
+        setBounds(0, 0, 300, 450);
         setLocationRelativeTo(owner);
 
         // Panel principal
-        JPanel mainPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+        JPanel mainPanel = new JPanel(new GridLayout(6, 1, 10, 10));
         mainPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
 
         // Selector de dificultad
@@ -45,8 +49,7 @@ public class GameSetupDialog extends JDialog {
         sizePanel.add(sizeCombo);
         mainPanel.add(sizePanel);
 
-
-        //Botones de tipos de Timers
+        // Botones de tipos de Timers
         JPanel typeTimerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         timerGroup = new ButtonGroup();
         chronoButton = new JRadioButton("Cronómetro");
@@ -64,9 +67,7 @@ public class GameSetupDialog extends JDialog {
         typeTimerPanel.add(timerButton);
         mainPanel.add(typeTimerPanel);
 
-
-
-        //Spinners de Tiempo
+        // Spinners de Tiempo
         JPanel spinnerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         hoursSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
         minutesSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));
@@ -77,23 +78,38 @@ public class GameSetupDialog extends JDialog {
         spinnerPanel.add(secondsSpinner);
         mainPanel.add(spinnerPanel);
 
+        // Panel de posición
+        JPanel positionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        positionPanel.add(new JLabel("Posición del panel:"));
+        positionGroup = new ButtonGroup();
+        rightPositionButton = new JRadioButton("Derecha");
+        leftPositionButton = new JRadioButton("Izquierda");
+        rightPositionButton.setSelected(true); // Por defecto a la derecha
+
+        positionGroup.add(rightPositionButton);
+        positionGroup.add(leftPositionButton);
+
+        positionPanel.add(rightPositionButton);
+        positionPanel.add(leftPositionButton);
+        mainPanel.add(positionPanel);
 
         // Botones
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton okButton = new JButton("Comenzar");
         JButton cancelButton = new JButton("Cancelar");
-        
+
         okButton.addActionListener(e -> {
-            selectedDifficulty = (String)difficultyCombo.getSelectedItem();
+            selectedDifficulty = (String) difficultyCombo.getSelectedItem();
             selectedSize = Integer.parseInt(
-                ((String)sizeCombo.getSelectedItem()).split("x")[0]
+                ((String) sizeCombo.getSelectedItem()).split("x")[0]
             );
+            selectedPosition = leftPositionButton.isSelected() ? "left" : "right";
             confirmed = true;
             dispose();
         });
-        
+
         cancelButton.addActionListener(e -> dispose());
-        
+
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
         mainPanel.add(buttonPanel);
@@ -101,33 +117,45 @@ public class GameSetupDialog extends JDialog {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    public int getSeconds()
-    {
+    public int getSeconds() {
         return (Integer) secondsSpinner.getValue();
     }
 
-    public int getMinutes()
-    {
+    public int getMinutes() {
         return (Integer) minutesSpinner.getValue();
     }
 
-    public int getHours()
-    {
+    public int getHours() {
         return (Integer) hoursSpinner.getValue();
     }
-    public boolean isConfirmed() { return confirmed; }
-    public String getSelectedDifficulty() { return selectedDifficulty; }
-    public int getSelectedSize() { return selectedSize; }
-    public String getTimerType()
-    {
-        if(timerButton.isSelected()){return timerButton.getText();}
-        if(chronoButton.isSelected()){return chronoButton.getText();}
+
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public String getSelectedDifficulty() {
+        return selectedDifficulty;
+    }
+
+    public int getSelectedSize() {
+        return selectedSize;
+    }
+
+    public String getTimerType() {
+        if (timerButton.isSelected()) {
+            return timerButton.getText();
+        }
+        if (chronoButton.isSelected()) {
+            return chronoButton.getText();
+        }
         return "";
     }
 
-
-    public boolean isMultiNivel()
-    {
+    public boolean isMultiNivel() {
         return multiNivel.isSelected();
+    }
+
+    public String getSelectedPosition() {
+        return selectedPosition;
     }
 }

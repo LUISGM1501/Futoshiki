@@ -12,6 +12,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JLabel;
 
 import model.config.Configuration;
 
@@ -91,39 +93,58 @@ public class ConfigurationDialog extends JDialog {
     private void layoutComponents() {
         setLayout(new BorderLayout());
         
-        JPanel mainPanel = new JPanel(new GridLayout(4,0));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.NORTH;
+        JPanel mainPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        mainPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
 
+        // Panel para el tamaño de cuadrícula
+        JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        gridPanel.add(new JLabel("Tamaño de cuadrícula:"));
+        gridPanel.add(gridSizeCombo);
+        mainPanel.add(gridPanel);
 
+        // Panel para dificultad
+        JPanel difficultyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        difficultyPanel.add(new JLabel("Nivel:"));
+        difficultyPanel.add(difficultyCombo);
+        mainPanel.add(difficultyPanel);
 
-        //Radio Buttons
-        JPanel rButtonPanel = new JPanel(new GridLayout(6,0));
-        rButtonPanel.add(chronoButton);
-        rButtonPanel.add(timerButton);
-        rButtonPanel.add(noTimerButton);
+        // Panel para multinivel
+        JPanel multiLevelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        multiLevelPanel.add(multiLevelCheck);
+        mainPanel.add(multiLevelPanel);
 
-        //Spinners
-        JPanel timerSpinners = new JPanel(new GridLayout(0, 4));
-        timerSpinners.add(hoursSpinner);
-        timerSpinners.add(minutesSpinner);
-        timerSpinners.add(secondsSpinner);
-        rButtonPanel.add(timerSpinners,BorderLayout.EAST);
+        // Panel para el timer
+        JPanel timerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        timerPanel.add(new JLabel("Timer:"));
+        timerPanel.add(chronoButton);
+        timerPanel.add(noTimerButton);
+        timerPanel.add(timerButton);
+        mainPanel.add(timerPanel);
 
+        // Panel para posición de dígitos
+        JPanel positionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        positionPanel.add(new JLabel("Posición del panel:"));
+        positionPanel.add(rightPanelButton);
+        positionPanel.add(leftPanelButton);
+        mainPanel.add(positionPanel);
 
-        mainPanel.add(difficultyCombo);
-        mainPanel.add(gridSizeCombo);
-        mainPanel.add(multiLevelCheck);
+        // Panel de spinners
+        JPanel spinnerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        spinnerPanel.add(new JLabel("H:"));
+        spinnerPanel.add(hoursSpinner);
+        spinnerPanel.add(new JLabel("M:"));
+        spinnerPanel.add(minutesSpinner);
+        spinnerPanel.add(new JLabel("S:"));
+        spinnerPanel.add(secondsSpinner);
+        mainPanel.add(spinnerPanel);
 
+        // Panel de botones
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
 
-        add(rButtonPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-        //add(rButtonPanel, BorderLayout.SOUTH);
     }
 
     private void initializeValues() {
@@ -167,14 +188,13 @@ public class ConfigurationDialog extends JDialog {
     public Configuration getConfiguration() {
         Configuration config = new Configuration();
         config.setTimerType(getTimerType());
-        //Podriamos hacer una revision de que si es un timer o un cronometro
-        //Si es cronometro los comienza en 0, si es en timer lo comienza con lo que el mae escogio
-        config.setTimerType(getTimerType());
         config.setTimerSeconds((Integer) secondsSpinner.getValue());
         config.setTimerMinutes((Integer) minutesSpinner.getValue());
         config.setTimerHours((Integer) hoursSpinner.getValue());
         config.setDifficulty(difficultyCombo.getSelectedItem().toString());
         config.setGridSize(getGridSize());
+        // Establecer la posición del panel
+        config.setDigitPanelPosition(leftPanelButton.isSelected() ? "left" : "right");
         return config;
     }
 

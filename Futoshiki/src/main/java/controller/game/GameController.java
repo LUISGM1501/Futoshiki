@@ -107,12 +107,12 @@ public class GameController {
             }
 
             // Inicializar nuevo juego
-            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
+            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, dialog);
 
         }
     }
 
-    private void initializeNewGame(List<GameData> gamesForSize, String difficulty, int size) {
+    private void initializeNewGame(List<GameData> gamesForSize, String difficulty, int size, GameSetupDialog dialog) {
         // Seleccionar partida aleatoria
         GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
         FutoshikiBoard board = createBoard(selectedGame);
@@ -127,12 +127,20 @@ public class GameController {
         isGameStarted = true;
         startTime = System.currentTimeMillis();
         
+        // Obtener la posición seleccionada del diálogo
+        String selectedPosition = dialog.getSelectedPosition();
+        if (selectedPosition != null) {
+            config.setDigitPanelPosition(selectedPosition);
+        }
+        
         // Actualizar la vista
         view.setLevel(difficulty);
         view.setTimerType(config);
+        view.setConfiguration(config); // Asegurarse de que la configuración se actualice
         view.enableGameButtons(true);
         view.getGameBoard().setPlayable(true);
         view.getGameBoard().setSize(size);
+        view.updateConfigurationView();
         view.startTimer();
         
         // Inicializar timer y tablero
@@ -429,7 +437,7 @@ public class GameController {
             gamesForSize = availableGamesForConfig.stream()
                     .filter(game -> game.getTamano() == selectedSize)
                     .toList();
-            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
+            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, new GameSetupDialog(view));
         } else {
             finishGame("¡Excelente! Juego terminado con éxito");
         }
