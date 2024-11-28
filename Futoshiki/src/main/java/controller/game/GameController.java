@@ -389,6 +389,39 @@ public class GameController {
         }
     }
 
+    public void solveGame() {
+        if (!isGameStarted) {
+            return;
+        }
+
+        int option = JOptionPane.showConfirmDialog(view,
+            "¿Está seguro que desea ver la solución? Esta acción no se puede deshacer.",
+            "Confirmar solución",
+            JOptionPane.YES_NO_OPTION);
+            
+        if (option == JOptionPane.YES_OPTION) {
+            FutoshikiBoard board = gameState.getBoard();
+            boolean solved = board.solve();
+            
+            if (solved) {
+                updateGameBoard();
+                stopTimer();
+                view.stopTimer();
+                JOptionPane.showMessageDialog(view,
+                    "¡Juego resuelto!",
+                    "Solución",
+                    JOptionPane.INFORMATION_MESSAGE);
+                isGameStarted = false;
+                view.enableGameButtons(false);
+                view.getGameBoard().setPlayable(false);
+            } else {
+                JOptionPane.showMessageDialog(view,
+                    "No se encontró solución para este juego",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     private String nextDifficulty(String currentDifficulty)
     {
@@ -471,8 +504,6 @@ public class GameController {
         FutoshikiBoard board = gameState.getBoard();
         view.getGameBoard().updateBoard(board);
     }
-
-
 
 
     public boolean isGameStarted() {

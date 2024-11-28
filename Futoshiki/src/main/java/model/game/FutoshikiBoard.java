@@ -211,4 +211,102 @@ public class FutoshikiBoard {
         }
         return sb.toString();
     }
+
+    public boolean solve() {
+        return solveBacktracking(0, 0);
+    }
+
+    private boolean solveBacktracking(int row, int col) {
+        // Si llegamos al final del tablero, está resuelto
+        if (row == size) {
+            return true;
+        }
+
+        // Calcular siguiente posición
+        int nextRow = (col == size - 1) ? row + 1 : row;
+        int nextCol = (col == size - 1) ? 0 : col + 1;
+
+        // Si la celda es constante, pasar a la siguiente
+        if (cells[row][col].isConstant()) {
+            return solveBacktracking(nextRow, nextCol);
+        }
+
+        // Probar cada valor posible
+        for (int num = 1; num <= size; num++) {
+            // Guardar valor actual para poder restaurarlo
+            int currentValue = cells[row][col].getValor();
+            
+            if (isValidMove(row, col, num)) {
+                cells[row][col].setValor(num);
+                
+                if (solveBacktracking(nextRow, nextCol)) {
+                    return true;
+                }
+            }
+            
+            // Restaurar valor si no funcionó
+            cells[row][col].setValor(currentValue);
+        }
+
+        return false;
+    }
+
+    private boolean isValidMove(int row, int col, int value) {
+        // Validar fila
+        for (int i = 0; i < size; i++) {
+            if (i != col && cells[row][i].getValor() == value) {
+                return false;
+            }
+        }
+
+        // Validar columna
+        for (int i = 0; i < size; i++) {
+            if (i != row && cells[i][col].getValor() == value) {
+                return false;
+            }
+        }
+
+        // Validar desigualdades
+        // Con celda a la derecha
+        if (col < size - 1) {
+            int rightValue = cells[row][col + 1].getValor();
+            if (rightValue != 0) {
+                String inequality = cells[row][col].getDesDer();
+                if (inequality.equals(">") && value <= rightValue) return false;
+                if (inequality.equals("<") && value >= rightValue) return false;
+            }
+        }
+
+        // Con celda a la izquierda
+        if (col > 0) {
+            int leftValue = cells[row][col - 1].getValor();
+            if (leftValue != 0) {
+                String inequality = cells[row][col - 1].getDesDer();
+                if (inequality.equals(">") && leftValue <= value) return false;
+                if (inequality.equals("<") && leftValue >= value) return false;
+            }
+        }
+
+        // Con celda abajo
+        if (row < size - 1) {
+            int bottomValue = cells[row + 1][col].getValor();
+            if (bottomValue != 0) {
+                String inequality = cells[row][col].getDesAbajo();
+                if (inequality.equals("v") && value <= bottomValue) return false;
+                if (inequality.equals("^") && value >= bottomValue) return false;
+            }
+        }
+
+        // Con celda arriba
+        if (row > 0) {
+            int topValue = cells[row - 1][col].getValor();
+            if (topValue != 0) {
+                String inequality = cells[row - 1][col].getDesAbajo();
+                if (inequality.equals("v") && topValue <= value) return false;
+                if (inequality.equals("^") && topValue >= value) return false;
+            }
+        }
+
+        return true;
+    }
 }

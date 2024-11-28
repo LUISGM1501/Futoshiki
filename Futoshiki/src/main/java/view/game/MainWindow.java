@@ -53,12 +53,13 @@ public class MainWindow extends JFrame {
     // Panel de botones
     private JPanel buttonPanel;
     private JButton[] gameButtons;
-    private String[] buttonLabels = {
+    private static final String[] BUTTON_LABELS = {
         "INICIAR JUEGO",
         "BORRAR JUGADA",
         "REHACER JUGADA",
         "BORRAR JUEGO",
         "TERMINAR JUEGO",
+        "SOLUCIONAR JUEGO",  // Nuevo botón
         "GUARDAR JUEGO",
         "CARGAR JUEGO", 
         "TOP 10",
@@ -210,18 +211,19 @@ public class MainWindow extends JFrame {
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
 
-        gameButtons = new JButton[buttonLabels.length];
+        gameButtons = new JButton[BUTTON_LABELS.length];
 
-        for (int i = 0; i < buttonLabels.length; i++) {
-            gameButtons[i] = createStyledButton(buttonLabels[i]);
+        for (int i = 0; i < BUTTON_LABELS.length; i++) {
+            gameButtons[i] = createStyledButton(BUTTON_LABELS[i]);
             buttonPanel.add(Box.createVerticalStrut(5));
             buttonPanel.add(gameButtons[i]);
 
-            if (i != 0 && i != 6 && i != 8 && i != 9) {
+            if (i != 0 && i != 7) {
                 gameButtons[i].setEnabled(false);
             }
         }
-        gameButtons[6].setEnabled(true);
+        
+        gameButtons[7].setEnabled(true); // CARGAR JUEGO siempre habilitado
         buttonPanel.add(Box.createVerticalGlue());
     }
 
@@ -331,16 +333,17 @@ public class MainWindow extends JFrame {
     private void setupButtonListeners() {
         if (gameController == null) return;
         
-        gameButtons[0].addActionListener(e -> gameController.startGame());
-        gameButtons[1].addActionListener(e -> gameController.undoMove());
-        gameButtons[2].addActionListener(e -> gameController.redoMove());
-        gameButtons[3].addActionListener(e -> gameController.clearGame());
-        gameButtons[4].addActionListener(e -> gameController.endGame());
-        gameButtons[5].addActionListener(e -> gameController.saveGame());
-        gameButtons[6].addActionListener(e -> gameController.loadGame());
-        gameButtons[7].addActionListener(e -> scoreController.showTop10());
-        gameButtons[8].addActionListener(e -> showHelp());
-        gameButtons[9].addActionListener(e -> showAbout());
+        gameButtons[0].addActionListener(e -> gameController.startGame());        // INICIAR JUEGO
+        gameButtons[1].addActionListener(e -> gameController.undoMove());         // BORRAR JUGADA
+        gameButtons[2].addActionListener(e -> gameController.redoMove());         // REHACER JUGADA
+        gameButtons[3].addActionListener(e -> gameController.clearGame());        // BORRAR JUEGO
+        gameButtons[4].addActionListener(e -> gameController.endGame());          // TERMINAR JUEGO
+        gameButtons[5].addActionListener(e -> gameController.solveGame());        // SOLUCIONAR JUEGO
+        gameButtons[6].addActionListener(e -> gameController.saveGame());         // GUARDAR JUEGO
+        gameButtons[7].addActionListener(e -> gameController.loadGame());         // CARGAR JUEGO
+        gameButtons[8].addActionListener(e -> scoreController.showTop10());       // TOP 10
+        gameButtons[9].addActionListener(e -> showHelp());                        // AYUDA
+        gameButtons[10].addActionListener(e -> showAbout());                      // ACERCA DE
     }
 
     private JButton createStyledButton(String text) {
@@ -394,16 +397,16 @@ public class MainWindow extends JFrame {
     }
 
     public void enableGameButtons(boolean enabled) {
-        for (int i = 1; i < gameButtons.length - 4; i++) {
-            gameButtons[i].setEnabled(enabled);
+        for (int i = 1; i < gameButtons.length - 1; i++) {  // Excluir INICIAR JUEGO y TOP 10
+            if (i != 7) { // No deshabilitar CARGAR JUEGO
+                gameButtons[i].setEnabled(enabled);
+            }
         }
         // INICIAR JUEGO y CARGAR JUEGO se comportan al revés
         gameButtons[0].setEnabled(!enabled);
-        gameButtons[6].setEnabled(!enabled);
-        // TOP 10, AYUDA y ACERCA DE siempre habilitados
-        gameButtons[7].setEnabled(true);
-        gameButtons[8].setEnabled(true);
-        gameButtons[9].setEnabled(true);
+        gameButtons[7].setEnabled(!enabled);
+        // TOP 10 siempre habilitado
+        gameButtons[gameButtons.length - 1].setEnabled(true);
     }
 
     public void updateTimer(int hours, int minutes, int seconds) {
