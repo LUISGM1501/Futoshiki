@@ -19,6 +19,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.Border;
 
+import util.constants.GameConstants;
 import model.game.Celda;
 import model.game.FutoshikiBoard;
 
@@ -122,7 +123,7 @@ public class GameBoard extends JPanel {
         label.setPreferredSize(new Dimension(INEQUALITY_SIZE, INEQUALITY_SIZE));
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setVerticalAlignment(SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setFont(new Font("Arial Unicode MS", Font.BOLD, 20));
         return label;
     }
 
@@ -195,21 +196,27 @@ public class GameBoard extends JPanel {
 
     private void updateInequalityLabel(JLabel label, String inequality) {
         switch (inequality) {
-            case "<":
-                label.setText("←");
+            case GameConstants.SYMBOL_LESSER:  // "<"
+                label.setText(GameConstants.SYMBOL_LESSER);
                 break;
-            case ">":
-                label.setText("→");
+            case GameConstants.SYMBOL_GREATER: // ">"
+                label.setText(GameConstants.SYMBOL_GREATER);
                 break;
-            case "^":
-                label.setText("↑");
+            case GameConstants.SYMBOL_LESSER_COL: // "^"
+                label.setText(GameConstants.SYMBOL_LESSER_COL);
                 break;
-            case "v":
-                label.setText("↓");
+            case GameConstants.SYMBOL_GREATER_COL: // "v"
+                label.setText(GameConstants.SYMBOL_GREATER_COL);
                 break;
             default:
                 label.setText(" ");
         }
+        
+        // Configurar el estilo visual
+        label.setFont(new Font("Arial Unicode MS", Font.BOLD, 20));
+        label.setForeground(new Color(0, 102, 204)); // Azul oscuro para mejor visibilidad
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
     public void showError(int row, int col) {
