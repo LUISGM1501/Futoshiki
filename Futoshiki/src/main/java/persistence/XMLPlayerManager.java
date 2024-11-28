@@ -24,7 +24,12 @@ import util.constants.FileConstants;
 public class XMLPlayerManager {
     private static final String PLAYERS_FILE = FileConstants.PLAYERS_FILE;
     
-    // Guarda la lista de jugadores en XML
+    /**
+     * Guarda la lista de jugadores en un archivo XML.
+     * 
+     * @param players Un mapa que asocia nombres de jugadores con sus objetos Player.
+     * @return true si los jugadores se guardaron correctamente, false en caso de error.
+     */
     public static boolean savePlayers(Map<String, Player> players) {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -88,7 +93,11 @@ public class XMLPlayerManager {
         }
     }
     
-    // Carga la lista de jugadores desde XML
+    /**
+     * Carga la lista de jugadores desde un archivo XML.
+     * 
+     * @return Un mapa que asocia nombres de jugadores con sus objetos Player.
+     */
     public static Map<String, Player> loadPlayers() {
         Map<String, Player> players = new HashMap<>();
         
@@ -153,6 +162,13 @@ public class XMLPlayerManager {
         return players;
     }
     
+    /**
+     * Obtiene el contenido de texto de un elemento hijo especificado.
+     * 
+     * @param parent El elemento padre.
+     * @param tagName El nombre de la etiqueta del elemento hijo.
+     * @return El contenido de texto del elemento hijo, o null si no se encuentra.
+     */
     private static String getElementContent(Element parent, String tagName) {
         NodeList nodes = parent.getElementsByTagName(tagName);
         if (nodes.getLength() > 0) {

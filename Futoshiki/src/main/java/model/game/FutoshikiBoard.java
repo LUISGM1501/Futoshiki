@@ -11,6 +11,11 @@ public class FutoshikiBoard {
     private List<Inequality> inequalities;
     private List<GameConstants> constants;
 
+    /**
+     * Constructor de la clase FutoshikiBoard.
+     * 
+     * @param size El tamaño del tablero.
+     */
     public FutoshikiBoard(int size) {
         this.size = size;
         this.cells = new Celda[size][size];
@@ -25,22 +30,52 @@ public class FutoshikiBoard {
         }
     }
 
+    /**
+     * Establece las celdas del tablero.
+     * 
+     * @param cells Las celdas a establecer.
+     */
     public void setCells(Celda[][] cells) {
         this.cells = cells;
     }
 
+    /**
+     * Obtiene las celdas del tablero.
+     * 
+     * @return Las celdas del tablero.
+     */
     public Celda[][] getCells() {
         return cells;
     }
 
+    /**
+     * Obtiene la celda en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return La celda en la posición especificada.
+     */
     public Celda getCellAt(int row, int col) {
         return cells[row][col];
     }
 
+    /**
+     * Obtiene el tamaño del tablero.
+     * 
+     * @return El tamaño del tablero.
+     */
     public int getSize() {
         return size;
     }
 
+    /**
+     * Establece el valor de una celda en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @param value El valor a establecer.
+     * @return true si el valor se estableció correctamente, false en caso contrario.
+     */
     public boolean setCellValue(int row, int col, int value) {
         if (row < 0 || row >= size || col < 0 || col >= size) {
             return false;
@@ -81,6 +116,13 @@ public class FutoshikiBoard {
         return true;
     }
 
+    /**
+     * Valida las desigualdades en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return true si las desigualdades son válidas, false en caso contrario.
+     */
     private boolean validateInequalities(int row, int col) {
         // Validar con celda a la derecha
         if (col < size - 1) {
@@ -113,6 +155,11 @@ public class FutoshikiBoard {
         return true;
     }
 
+    /**
+     * Verifica si el tablero está completo.
+     * 
+     * @return true si el tablero está completo, false en caso contrario.
+     */
     public boolean isBoardComplete() {
         // Verificar que todas las celdas estén llenas
         for (int i = 0; i < size; i++) {
@@ -135,11 +182,25 @@ public class FutoshikiBoard {
         return true;
     }
 
+    /**
+     * Establece una celda como constante.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @param value El valor a establecer.
+     */
     public void setConstant(int row, int col, int value) {
         cells[row][col].setValor(value);
         cells[row][col].setConstant(true);
     }
 
+    /**
+     * Establece una desigualdad en una posición específica.
+     * 
+     * @param type El tipo de desigualdad.
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     */
     public void setInequality(String type, int row, int col) {
         switch (type) {
             case "maf": // mayor que en fila
@@ -157,22 +218,57 @@ public class FutoshikiBoard {
         }
     }
 
+    /**
+     * Verifica si una celda es constante.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return true si la celda es constante, false en caso contrario.
+     */
     public boolean isConstant(int row, int col) {
         return cells[row][col].isConstant();
     }
 
+    /**
+     * Obtiene el valor de una celda en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return El valor de la celda.
+     */
     public int getValue(int row, int col) {
         return cells[row][col].getValor();
     }
 
+    /**
+     * Obtiene la desigualdad hacia la derecha de una celda en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return La desigualdad hacia la derecha.
+     */
     public String getRightInequality(int row, int col) {
         return cells[row][col].getDesDer();
     }
 
+    /**
+     * Obtiene la desigualdad hacia abajo de una celda en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return La desigualdad hacia abajo.
+     */
     public String getBottomInequality(int row, int col) {
         return cells[row][col].getDesAbajo();
     }
 
+    /**
+     * Limpia el valor de una celda en una posición específica si no es constante.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return true si la celda se limpió correctamente, false en caso contrario.
+     */
     public boolean clearCell(int row, int col) {
         if (!cells[row][col].isConstant()) {
             cells[row][col].setValor(0);
@@ -181,6 +277,9 @@ public class FutoshikiBoard {
         return false;
     }
 
+    /**
+     * Limpia todas las celdas no constantes del tablero.
+     */
     public void clearNonConstantCells() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -191,6 +290,11 @@ public class FutoshikiBoard {
         }
     }
 
+    /**
+     * Devuelve una representación en cadena del tablero.
+     * 
+     * @return Una cadena que representa el tablero.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -212,10 +316,22 @@ public class FutoshikiBoard {
         return sb.toString();
     }
 
+    /**
+     * Resuelve el tablero utilizando el algoritmo de backtracking.
+     * 
+     * @return true si el tablero se resolvió correctamente, false en caso contrario.
+     */
     public boolean solve() {
         return solveBacktracking(0, 0);
     }
 
+    /**
+     * Resuelve el tablero utilizando el algoritmo de backtracking.
+     * 
+     * @param row La fila actual.
+     * @param col La columna actual.
+     * @return true si el tablero se resolvió correctamente, false en caso contrario.
+     */
     private boolean solveBacktracking(int row, int col) {
         // Si llegamos al final del tablero, está resuelto
         if (row == size) {
@@ -251,6 +367,14 @@ public class FutoshikiBoard {
         return false;
     }
 
+    /**
+     * Verifica si un movimiento es válido en una posición específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @param value El valor a verificar.
+     * @return true si el movimiento es válido, false en caso contrario.
+     */
     private boolean isValidMove(int row, int col, int value) {
         // Validar fila
         for (int i = 0; i < size; i++) {

@@ -3,6 +3,7 @@ package view.dialogs;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
+import model.config.Configuration;
 
 public class GameSetupDialog extends JDialog {
     private String selectedDifficulty;
@@ -20,7 +21,14 @@ public class GameSetupDialog extends JDialog {
     private JRadioButton rightPositionButton;
     private JRadioButton leftPositionButton;
     private String selectedPosition;
+    private JComboBox<String> sizeCombo; // Añadir como campo de clase
+    private JComboBox<String> difficultyCombo;
 
+    /**
+     * Constructor de la clase GameSetupDialog.
+     * 
+     * @param owner El frame propietario del diálogo.
+     */
     public GameSetupDialog(Frame owner) {
         super(owner, "Configuración de Partida", true);
         setLayout(new BorderLayout(10, 10));
@@ -34,18 +42,20 @@ public class GameSetupDialog extends JDialog {
         // Selector de dificultad
         JPanel difficultyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         difficultyPanel.add(new JLabel("Dificultad:"));
-        JComboBox<String> difficultyCombo = new JComboBox<>(
-            new String[]{"Facil", "Intermedio", "Dificil"}
-        );
+        difficultyCombo = new JComboBox<>(new String[]{"Facil", "Intermedio", "Dificil"});
         difficultyPanel.add(difficultyCombo);
         mainPanel.add(difficultyPanel);
 
-        // Selector de tamaño
+        // Selector de tamaño actualizado para soportar hasta 10x10
         JPanel sizePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         sizePanel.add(new JLabel("Tamaño:"));
-        JComboBox<String> sizeCombo = new JComboBox<>(
-            new String[]{"3x3", "4x4", "5x5"}
-        );
+        String[] sizes = new String[8]; // Del 3x3 al 10x10
+        for (int i = 0; i < 8; i++) {
+            int size = i + 3;
+            sizes[i] = size + "x" + size;
+        }
+        sizeCombo = new JComboBox<>(sizes);
+        sizeCombo.setSelectedIndex(2); // Seleccionar 5x5 por defecto
         sizePanel.add(sizeCombo);
         mainPanel.add(sizePanel);
 
@@ -100,9 +110,9 @@ public class GameSetupDialog extends JDialog {
 
         okButton.addActionListener(e -> {
             selectedDifficulty = (String) difficultyCombo.getSelectedItem();
-            selectedSize = Integer.parseInt(
-                ((String) sizeCombo.getSelectedItem()).split("x")[0]
-            );
+            // Extraer el número del string "NxN"
+            String sizeStr = ((String) sizeCombo.getSelectedItem()).split("x")[0];
+            selectedSize = Integer.parseInt(sizeStr);
             selectedPosition = leftPositionButton.isSelected() ? "left" : "right";
             confirmed = true;
             dispose();
@@ -117,30 +127,65 @@ public class GameSetupDialog extends JDialog {
         add(mainPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Obtiene los segundos seleccionados en el spinner.
+     * 
+     * @return Los segundos seleccionados.
+     */
     public int getSeconds() {
         return (Integer) secondsSpinner.getValue();
     }
 
+    /**
+     * Obtiene los minutos seleccionados en el spinner.
+     * 
+     * @return Los minutos seleccionados.
+     */
     public int getMinutes() {
         return (Integer) minutesSpinner.getValue();
     }
 
+    /**
+     * Obtiene las horas seleccionadas en el spinner.
+     * 
+     * @return Las horas seleccionadas.
+     */
     public int getHours() {
         return (Integer) hoursSpinner.getValue();
     }
 
+    /**
+     * Verifica si la configuración fue confirmada.
+     * 
+     * @return true si fue confirmada, false en caso contrario.
+     */
     public boolean isConfirmed() {
         return confirmed;
     }
 
+    /**
+     * Obtiene la dificultad seleccionada.
+     * 
+     * @return La dificultad seleccionada.
+     */
     public String getSelectedDifficulty() {
         return selectedDifficulty;
     }
 
+    /**
+     * Obtiene el tamaño seleccionado.
+     * 
+     * @return El tamaño seleccionado.
+     */
     public int getSelectedSize() {
         return selectedSize;
     }
 
+    /**
+     * Obtiene el tipo de temporizador seleccionado.
+     * 
+     * @return El tipo de temporizador seleccionado.
+     */
     public String getTimerType() {
         if (timerButton.isSelected()) {
             return timerButton.getText();
@@ -151,11 +196,42 @@ public class GameSetupDialog extends JDialog {
         return "";
     }
 
+    /**
+     * Verifica si la opción multinivel está seleccionada.
+     * 
+     * @return true si está seleccionada, false en caso contrario.
+     */
     public boolean isMultiNivel() {
         return multiNivel.isSelected();
     }
 
+    /**
+     * Obtiene la posición seleccionada del panel.
+     * 
+     * @return La posición seleccionada del panel.
+     */
     public String getSelectedPosition() {
         return selectedPosition;
+    }
+
+    /**
+     * Establece la configuración actual en el diálogo.
+     * 
+     * @param config La configuración a establecer.
+     */
+    public void setCurrentConfiguration(Configuration config) {
+        // Establecer valores actuales de la configuración
+        sizeCombo.setSelectedItem(String.valueOf(config.getGridSize()));
+        difficultyCombo.setSelectedItem(config.getDifficulty());
+        multiNivel.setSelected(config.isMultiLevel());
+        chronoButton.setSelected(config.getTimerType().equals("Cronómetro"));
+        timerButton.setSelected(config.getTimerType().equals("Temporizador"));
+        noTimerButton.setSelected(config.getTimerType().equals("No"));
+        hoursSpinner.setValue(config.getTimerHours());
+        minutesSpinner.setValue(config.getTimerMinutes());
+        secondsSpinner.setValue(config.getTimerSeconds());
+        rightPositionButton.setSelected(config.getDigitPanelPosition().equals("right"));
+        leftPositionButton.setSelected(config.getDigitPanelPosition().equals("left"));
+        confirmed = false;
     }
 }

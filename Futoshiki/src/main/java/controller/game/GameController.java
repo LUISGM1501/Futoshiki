@@ -20,7 +20,12 @@ import persistence.XMLHandler.GameData;
 import util.constants.MessageConstants;
 import view.dialogs.GameSetupDialog;
 import view.game.MainWindow;
+import persistence.ConfigurationManager;
+import controller.config.ConfigurationController;
 
+/**
+ * Controlador del juego Futoshiki.
+ */
 public class GameController {
     private GameState gameState;
     private MainWindow view;
@@ -43,47 +48,98 @@ public class GameController {
     private Top10Manager top10Manager;
     private long startTime;
     private String timerType;
+    private ConfigurationController configController;
 
-    public GameController(GameState gameState, MainWindow view) {
+    /**
+     * Constructor del GameController.
+     * 
+     * @param gameState El estado del juego.
+     * @param view La vista principal del juego.
+     * @param configController El controlador de configuración.
+     */
+    public GameController(GameState gameState, MainWindow view, ConfigurationController configController) {
         this.gameState = gameState;
         this.view = view;
+        this.configController = configController;
         this.random = new Random();
         this.moves = new Stack<>();
         this.redoMoves = new Stack<>();
         this.selectedDigit = 0;
         this.isGameStarted = false;
         this.top10Manager = new Top10Manager();
-        loadAvailableGames();
         
-        // Configurar timer
+        // Inicializar la configuración con la del ConfigurationController
+        this.config = configController.getConfiguration();
+        
+        loadAvailableGames();
     }
 
+    /**
+     * Carga los juegos disponibles desde el XML.
+     */
     private void loadAvailableGames() {
         this.availableGames = XMLHandler.loadGames();
     }
 
+    /**
+     * Inicia un nuevo juego.
+     */
     public void startGame() {
         view.stopTimer();
         view.restartTimer();
         GameSetupDialog dialog = new GameSetupDialog(view);
         dialog.setVisible(true);
-        config  = new Configuration();
+        
         if (dialog.isConfirmed()) {
             selectedDifficulty = dialog.getSelectedDifficulty();
             selectedSize = dialog.getSelectedSize();
-            config.setTimerType(dialog.getTimerType());
             isMultiNivel = dialog.isMultiNivel();
-            if(dialog.getTimerType() == "Temporizador")
-            {
+            
+            // Actualizar la configuración existente en lugar de crear una nueva
+            config.setGridSize(selectedSize);
+            config.setDifficulty(selectedDifficulty);
+            config.setMultiLevel(dialog.isMultiNivel());
+            config.setTimerType(dialog.getTimerType());
+            config.setDigitPanelPosition(dialog.getSelectedPosition());
+            
+            if(dialog.getTimerType().equals("Temporizador")) {
                 config.setTimerHours(dialog.getHours());
                 config.setTimerMinutes(dialog.getMinutes());
                 config.setTimerSeconds(dialog.getSeconds());
-            }else
-            {
+            } else {
                 config.setTimerHours(0);
                 config.setTimerMinutes(0);
                 config.setTimerSeconds(0);
             }
+
+            // Actualizar el ConfigurationController con la nueva configuración
+            configController.updateConfiguration(config);
+            
+            view.getDigitPanel().setMaxDigits(selectedSize);
+            
+            // Guardar configuración cuando se inicia un nuevo juego
+            System.out.println("GameController: Guardando configuración después de iniciar juego");
+            
+            // Actualizar la configuración
+            config.setGridSize(selectedSize);
+            config.setDifficulty(selectedDifficulty);
+            config.setTimerType(dialog.getTimerType());
+            config.setMultiLevel(dialog.isMultiNivel());
+            
+            // Actualizar el panel de dígitos antes de inicializar el juego
+            view.getDigitPanel().setMaxDigits(selectedSize);
+            
+            if(dialog.getTimerType().equals("Temporizador")) {
+                config.setTimerHours(dialog.getHours());
+                config.setTimerMinutes(dialog.getMinutes());
+                config.setTimerSeconds(dialog.getSeconds());
+            } else {
+                config.setTimerHours(0);
+                config.setTimerMinutes(0);
+                config.setTimerSeconds(0);
+            }
+
+            ConfigurationManager.saveConfiguration(config);
 
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
             if (availableGamesForConfig == null || availableGamesForConfig.isEmpty()) {
@@ -108,10 +164,17 @@ public class GameController {
 
             // Inicializar nuevo juego
             initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, dialog);
-
         }
     }
 
+    /**
+     * Inicializa un nuevo juego con los parámetros dados.
+     * 
+     * @param gamesForSize Lista de juegos disponibles para el tamaño seleccionado.
+     * @param difficulty Dificultad seleccionada.
+     * @param size Tamaño del tablero.
+     * @param dialog Diálogo de configuración del juego.
+     */
     private void initializeNewGame(List<GameData> gamesForSize, String difficulty, int size, GameSetupDialog dialog) {
         // Seleccionar partida aleatoria
         GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
@@ -148,6 +211,12 @@ public class GameController {
         updateGameBoard();
     }
 
+    /**
+     * Crea un tablero de Futoshiki a partir de los datos del juego.
+     * 
+     * @param gameData Datos del juego.
+     * @return El tablero de Futoshiki creado.
+     */
     private FutoshikiBoard createBoard(GameData gameData) {
         FutoshikiBoard board = new FutoshikiBoard(gameData.getTamano());
 
@@ -171,9 +240,14 @@ public class GameController {
         return board;
     }
 
+    /**
+     * Maneja el clic en una celda del tablero.
+     * 
+     * @param row Fila de la celda.
+     * @param col Columna de la celda.
+     */
     public void handleCellClick(int row, int col) {
         if (!isGameStarted) {
-
             return;
         }
 
@@ -211,6 +285,14 @@ public class GameController {
         }
     }
 
+    /**
+     * Valida una jugada en el tablero.
+     * 
+     * @param row Fila de la celda.
+     * @param col Columna de la celda.
+     * @param value Valor a colocar en la celda.
+     * @return Mensaje de error si la jugada no es válida, de lo contrario "JUGADA NO VÁLIDA".
+     */
     private String validateMove(int row, int col, int value) {
         FutoshikiBoard board = gameState.getBoard();
         
@@ -263,11 +345,19 @@ public class GameController {
         return "JUGADA NO VÁLIDA";
     }
 
+    /**
+     * Establece el dígito seleccionado.
+     * 
+     * @param digit Dígito seleccionado.
+     */
     public void setSelectedDigit(int digit) {
         this.selectedDigit = digit;
         view.getDigitPanel().setSelectedDigit(digit);
     }
 
+    /**
+     * Deshace el último movimiento.
+     */
     public void undoMove() {
         if (!moves.isEmpty()) {
             Move move = moves.pop();
@@ -293,6 +383,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Rehace el último movimiento deshecho.
+     */
     public void redoMove() {
         if (!redoMoves.isEmpty()) {
             Move move = redoMoves.pop();
@@ -310,6 +403,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Limpia el tablero del juego.
+     */
     public void clearGame() {
         int option = JOptionPane.showConfirmDialog(view,
             MessageConstants.CONFIRM_CLEAR_GAME,
@@ -325,6 +421,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Guarda el estado actual del juego.
+     */
     public void saveGame() {
         if (!isGameStarted) {
             return;
@@ -347,6 +446,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Carga un juego guardado.
+     */
     public void loadGame() {
         if (isGameStarted) {
             return;
@@ -374,6 +476,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Termina el juego actual.
+     */
     public void endGame() {
         int option = JOptionPane.showConfirmDialog(view,
             MessageConstants.CONFIRM_END_GAME,
@@ -389,6 +494,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Resuelve el juego actual.
+     */
     public void solveGame() {
         if (!isGameStarted) {
             return;
@@ -423,6 +531,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Obtiene la siguiente dificultad en el modo multinivel.
+     * 
+     * @param currentDifficulty Dificultad actual.
+     * @return La siguiente dificultad.
+     */
     private String nextDifficulty(String currentDifficulty)
     {
         switch (currentDifficulty)
@@ -437,6 +551,9 @@ public class GameController {
         return "Dificil";
     }
 
+    /**
+     * Maneja la finalización del juego.
+     */
     private void handleGameCompletion() {
         // Calcular tiempo total actual
         int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
@@ -458,24 +575,45 @@ public class GameController {
         }
 
         if(isMultiNivel) {
-            // Si estamos en nivel difícil, terminar el juego
-            if(selectedDifficulty.equals("Dificil")) {
-                finishGame("¡Felicitaciones! Has completado todos los niveles.");
-                return;
+            if(selectedDifficulty.equals("Facil")) {
+                // Avanzar al siguiente nivel
+                selectedDifficulty = "Intermedio";
+            } else if(selectedDifficulty.equals("Intermedio")) {
+                // Avanzar al siguiente nivel
+                selectedDifficulty = "Dificil";
             }
-            
-            // Avanzar al siguiente nivel
-            selectedDifficulty = nextDifficulty(selectedDifficulty);
+            // Si ya está en nivel difícil o avanzó a un nuevo nivel
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
-            gamesForSize = availableGamesForConfig.stream()
+            if (availableGamesForConfig != null && !availableGamesForConfig.isEmpty()) {
+                gamesForSize = availableGamesForConfig.stream()
                     .filter(game -> game.getTamano() == selectedSize)
                     .toList();
-            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, new GameSetupDialog(view));
-        } else {
-            finishGame("¡Excelente! Juego terminado con éxito");
+                
+                if (!gamesForSize.isEmpty()) {
+                    String message = selectedDifficulty.equals("Dificil") ? 
+                        "¡Excelente! Juego terminado con éxito. Continuando en nivel difícil." :
+                        "¡Felicitaciones! Avanzando al siguiente nivel.";
+                        
+                    JOptionPane.showMessageDialog(view,
+                        message,
+                        "¡Felicitaciones!",
+                        JOptionPane.INFORMATION_MESSAGE);
+                        
+                    initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, new GameSetupDialog(view));
+                    return;
+                }
+            }
         }
+        
+        // Si no es multinivel o no hay más niveles disponibles
+        finishGame("¡Excelente! Juego terminado con éxito");
     }
 
+    /**
+     * Finaliza el juego con un mensaje.
+     * 
+     * @param message Mensaje a mostrar.
+     */
     private void finishGame(String message) {
         stopTimer();
         view.stopTimer();
@@ -488,28 +626,49 @@ public class GameController {
         view.getGameBoard().setPlayable(false);
     }
 
+    /**
+     * Inicia el temporizador del juego.
+     */
     private void startTimer() {
         //timer.start();
     }
 
+    /**
+     * Detiene el temporizador del juego.
+     */
     private void stopTimer() {
         //timer.stop();
     }
 
+    /**
+     * Reinicia el temporizador del juego.
+     */
     private void restartTimer() {
         //timer.restart();
     }
 
+    /**
+     * Actualiza el tablero del juego en la vista.
+     */
     private void updateGameBoard() {
         FutoshikiBoard board = gameState.getBoard();
         view.getGameBoard().updateBoard(board);
     }
 
-
+    /**
+     * Verifica si el juego ha comenzado.
+     * 
+     * @return true si el juego ha comenzado, false en caso contrario.
+     */
     public boolean isGameStarted() {
         return isGameStarted;
     }
 
+    /**
+     * Establece el estado de inicio del juego.
+     * 
+     * @param gameStarted true si el juego ha comenzado, false en caso contrario.
+     */
     public void setGameStarted(boolean gameStarted) {
         isGameStarted = gameStarted;
     }

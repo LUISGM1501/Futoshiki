@@ -28,6 +28,9 @@ import javax.swing.border.MatteBorder;
 
 import model.player.PlayerManager;
 
+/**
+ * Clase PlayerLoginDialog que representa un diálogo para el inicio de sesión y registro de jugadores.
+ */
 public class PlayerLoginDialog extends JDialog {
     // Colores del tema
     private static final Color PRIMARY_COLOR = new Color(25, 118, 210);     // Azul
@@ -49,6 +52,12 @@ public class PlayerLoginDialog extends JDialog {
     private boolean loggedIn;
     private String playerName;
 
+    /**
+     * Constructor de la clase PlayerLoginDialog.
+     * 
+     * @param owner El frame propietario del diálogo.
+     * @param playerManager El gestor de jugadores.
+     */
     public PlayerLoginDialog(Frame owner, PlayerManager playerManager) {
         super(owner, "Futoshiki", true);
         this.playerManager = playerManager;
@@ -62,6 +71,9 @@ public class PlayerLoginDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
 
+    /**
+     * Inicializa los componentes del diálogo.
+     */
     private void initComponents() {
         // Panel principal
         JPanel mainPanel = new JPanel(new BorderLayout(0, 0));
@@ -99,6 +111,11 @@ public class PlayerLoginDialog extends JDialog {
         setContentPane(mainPanel);
     }
     
+    /**
+     * Crea el panel de inicio de sesión.
+     * 
+     * @return El panel de inicio de sesión.
+     */
     private JPanel createLoginPanel() {
         JPanel panel = new JPanel(null); // Usando absolute positioning
         panel.setBackground(Color.WHITE);
@@ -145,6 +162,11 @@ public class PlayerLoginDialog extends JDialog {
         return panel;
     }
     
+    /**
+     * Crea el panel de registro.
+     * 
+     * @return El panel de registro.
+     */
     private JPanel createRegisterPanel() {
         JPanel panel = new JPanel(null); // Usando absolute positioning
         panel.setBackground(Color.WHITE);
@@ -192,6 +214,14 @@ public class PlayerLoginDialog extends JDialog {
         return panel;
     }
     
+    /**
+     * Crea una etiqueta con el texto y posición especificados.
+     * 
+     * @param text El texto de la etiqueta.
+     * @param x La posición x de la etiqueta.
+     * @param y La posición y de la etiqueta.
+     * @return La etiqueta creada.
+     */
     private JLabel createLabel(String text, int x, int y) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -200,6 +230,15 @@ public class PlayerLoginDialog extends JDialog {
         return label;
     }
     
+    /**
+     * Crea un campo de texto con la posición y tamaño especificados.
+     * 
+     * @param x La posición x del campo de texto.
+     * @param y La posición y del campo de texto.
+     * @param width El ancho del campo de texto.
+     * @param height La altura del campo de texto.
+     * @return El campo de texto creado.
+     */
     private JTextField createTextField(int x, int y, int width, int height) {
         JTextField field = new JTextField();
         field.setBounds(x, y, width, height);
@@ -213,6 +252,15 @@ public class PlayerLoginDialog extends JDialog {
         return field;
     }
     
+    /**
+     * Crea un campo de contraseña con la posición y tamaño especificados.
+     * 
+     * @param x La posición x del campo de contraseña.
+     * @param y La posición y del campo de contraseña.
+     * @param width El ancho del campo de contraseña.
+     * @param height La altura del campo de contraseña.
+     * @return El campo de contraseña creado.
+     */
     private JPasswordField createPasswordField(int x, int y, int width, int height) {
         JPasswordField field = new JPasswordField();
         field.setBounds(x, y, width, height);
@@ -227,6 +275,12 @@ public class PlayerLoginDialog extends JDialog {
         return field;
     }
     
+    /**
+     * Crea un botón de acción con el texto especificado.
+     * 
+     * @param text El texto del botón.
+     * @return El botón de acción creado.
+     */
     private JButton createActionButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -251,6 +305,12 @@ public class PlayerLoginDialog extends JDialog {
         return button;
     }
     
+    /**
+     * Crea un botón de enlace con el texto especificado.
+     * 
+     * @param text El texto del botón.
+     * @return El botón de enlace creado.
+     */
     private JButton createLinkButton(String text) {
         JButton button = new JButton(text);
         button.setBorder(null);
@@ -274,6 +334,9 @@ public class PlayerLoginDialog extends JDialog {
         return button;
     }
     
+    /**
+     * Organiza los componentes del diálogo.
+     */
     private void layoutComponents() {
         setLayout(new BorderLayout());
         add(tabbedPane, BorderLayout.CENTER);
@@ -283,6 +346,9 @@ public class PlayerLoginDialog extends JDialog {
         add(bottomPanel, BorderLayout.SOUTH);
     }
     
+    /**
+     * Configura los listeners para los botones.
+     */
     private void setupListeners() {
         loginButton.addActionListener(e -> handleLogin());
         registerButton.addActionListener(e -> handleRegister());
@@ -290,6 +356,9 @@ public class PlayerLoginDialog extends JDialog {
         forgotPasswordButton.addActionListener(e -> handleForgotPassword());
     }
     
+    /**
+     * Maneja el evento de inicio de sesión.
+     */
     private void handleLogin() {
         String name = loginNameField.getText();
         String password = new String(loginPasswordField.getPassword());
@@ -306,6 +375,9 @@ public class PlayerLoginDialog extends JDialog {
         }
     }
     
+    /**
+     * Maneja el evento de registro.
+     */
     private void handleRegister() {
         String name = registerNameField.getText();
         String password = new String(registerPasswordField.getPassword());
@@ -323,12 +395,18 @@ public class PlayerLoginDialog extends JDialog {
         }
     }
     
+    /**
+     * Maneja el evento de jugar como invitado.
+     */
     private void handleGuest() {
         loggedIn = false;
-        playerName = "";
+        playerName = "Invitado"; // Cambiado de cadena vacía a "Invitado"
         dispose();
     }
     
+    /**
+     * Maneja el evento de olvido de contraseña.
+     */
     private void handleForgotPassword() {
         String name = JOptionPane.showInputDialog(this, 
             "Ingresa tu nombre de usuario para recuperar la contraseña:");
@@ -348,6 +426,11 @@ public class PlayerLoginDialog extends JDialog {
         }
     }
 
+    /**
+     * Muestra el diálogo para restablecer la contraseña.
+     * 
+     * @param username El nombre de usuario.
+     */
     private void showPasswordResetDialog(String username) {
         JPanel panel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
@@ -384,11 +467,22 @@ public class PlayerLoginDialog extends JDialog {
         }
     }
     
+    /**
+     * Verifica si el usuario ha iniciado sesión.
+     * 
+     * @return true si el usuario ha iniciado sesión, false en caso contrario.
+     */
     public boolean isLoggedIn() {
         return loggedIn;
     }
     
+    /**
+     * Obtiene el nombre del jugador.
+     * Si no hay nombre establecido, devuelve "Invitado".
+     * 
+     * @return El nombre del jugador.
+     */
     public String getPlayerName() {
-        return playerName;
+        return playerName != null ? playerName : "Invitado";
     }
 }

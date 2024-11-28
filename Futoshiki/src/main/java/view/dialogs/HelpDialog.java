@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
+/**
+ * Clase HelpDialog que representa un diálogo de ayuda con imágenes de un manual de usuario.
+ */
 public class HelpDialog extends JDialog {
     private static final String[] HELP_IMAGES = {
         "manual1.png",
@@ -15,6 +18,11 @@ public class HelpDialog extends JDialog {
     private int currentImageIndex = 0;
     private JLabel imageLabel;
     
+    /**
+     * Constructor de HelpDialog.
+     * 
+     * @param owner El frame propietario del diálogo.
+     */
     public HelpDialog(Frame owner) {
         super(owner, "Manual de Usuario", true);
         
@@ -44,6 +52,11 @@ public class HelpDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
     
+    /**
+     * Muestra la imagen en el índice especificado.
+     * 
+     * @param index El índice de la imagen a mostrar.
+     */
     private void showImage(int index) {
         try {
             File imageFile = new File(IMAGE_PATH + HELP_IMAGES[index]);
@@ -70,12 +83,18 @@ public class HelpDialog extends JDialog {
         }
     }
     
+    /**
+     * Muestra la siguiente imagen en la secuencia.
+     */
     private void showNextImage() {
         if (currentImageIndex < HELP_IMAGES.length - 1) {
             showImage(currentImageIndex + 1);
         }
     }
     
+    /**
+     * Muestra la imagen anterior en la secuencia.
+     */
     private void showPreviousImage() {
         if (currentImageIndex > 0) {
             showImage(currentImageIndex - 1);

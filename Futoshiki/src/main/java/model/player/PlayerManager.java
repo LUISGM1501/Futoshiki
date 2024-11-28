@@ -8,17 +8,27 @@ import java.util.Map;
 import model.game.GameScore;
 import persistence.XMLPlayerManager;
 import util.validators.InputValidator;
+
 public class PlayerManager {
     private Map<String, Player> players;
     private Player currentPlayer;
     
+    /**
+     * Constructor de la clase PlayerManager.
+     * Carga jugadores desde XML al inicializar.
+     */
     public PlayerManager() {
-        // Cargar jugadores desde XML al inicializar
         players = XMLPlayerManager.loadPlayers();
     }
     
-    // Registra un nuevo jugador
-    // @return String con mensaje de error o null si se registró correctamente
+    /**
+     * Registra un nuevo jugador.
+     * 
+     * @param name El nombre del jugador.
+     * @param password La contraseña del jugador.
+     * @param email El correo electrónico del jugador.
+     * @return String con mensaje de error o null si se registró correctamente.
+     */
     public String registerPlayer(String name, String password, String email) {
         // Validar inputs
         String nameError = InputValidator.validatePlayerName(name);
@@ -48,8 +58,13 @@ public class PlayerManager {
         return null;
     }
     
-    // Inicia sesión de un jugador
-    // @return String con mensaje de error o null si el login fue exitoso
+    /**
+     * Inicia sesión de un jugador.
+     * 
+     * @param name El nombre del jugador.
+     * @param password La contraseña del jugador.
+     * @return String con mensaje de error o null si el login fue exitoso.
+     */
     public String login(String name, String password) {
         System.out.println("PlayerManager: Verificando usuario " + name);
         System.out.println("Jugadores cargados: " + players.keySet());
@@ -73,8 +88,12 @@ public class PlayerManager {
         return null;
     }
     
-    // Inicia el proceso de recuperación de contraseña
-    // @return String con mensaje de error o null si se envió el email
+    /**
+     * Inicia el proceso de recuperación de contraseña.
+     * 
+     * @param name El nombre del jugador.
+     * @return String con mensaje de error o null si se envió el email.
+     */
     public String initiatePasswordRecovery(String name) {
         Player player = players.get(name);
         
@@ -90,7 +109,14 @@ public class PlayerManager {
         return "Tu token de recuperación es: " + player.getRecoveryToken();
     }
     
-    // Completa el proceso de recuperación de contraseña
+    /**
+     * Completa el proceso de recuperación de contraseña.
+     * 
+     * @param name El nombre del jugador.
+     * @param token El token de recuperación.
+     * @param newPassword La nueva contraseña a establecer.
+     * @return String con mensaje de error o null si la recuperación fue exitosa.
+     */
     public String completePasswordRecovery(String name, String token, String newPassword) {
         Player player = players.get(name);
         
@@ -111,7 +137,11 @@ public class PlayerManager {
         return null;
     }
     
-    // Agrega un nuevo score al jugador actual
+    /**
+     * Agrega un nuevo score al jugador actual.
+     * 
+     * @param score La puntuación a añadir.
+     */
     public void addScore(GameScore score) {
         if (currentPlayer != null) {
             currentPlayer.addScore(score);
@@ -119,20 +149,37 @@ public class PlayerManager {
         }
     }
     
-    // Getters
+    /**
+     * Obtiene el jugador actual.
+     * 
+     * @return El jugador actual.
+     */
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
     
+    /**
+     * Verifica si hay un jugador conectado.
+     * 
+     * @return true si hay un jugador conectado, false en caso contrario.
+     */
     public boolean isLoggedIn() {
         return currentPlayer != null;
     }
     
+    /**
+     * Cierra la sesión del jugador actual.
+     */
     public void logout() {
         currentPlayer = null;
     }
     
-    // Obtiene una lista de todos los scores de un nivel específico
+    /**
+     * Obtiene una lista de todos los scores de un nivel específico.
+     * 
+     * @param difficulty La dificultad del nivel.
+     * @return Una lista de puntuaciones para el nivel especificado.
+     */
     public List<GameScore> getAllScoresForLevel(String difficulty) {
         List<GameScore> allScores = new ArrayList<>();
         for (Player player : players.values()) {

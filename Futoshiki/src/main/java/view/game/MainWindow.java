@@ -20,6 +20,7 @@ import controller.game.GameController;
 import controller.timer.TimerController;
 import controller.top10.ScoreController;
 import model.config.Configuration;
+import persistence.ConfigurationManager;
 import persistence.GameSaver;
 import util.constants.GameConstants;
 import view.components.TimerDisplay;
@@ -80,6 +81,9 @@ public class MainWindow extends JFrame {
     private Configuration configuration;
     private String playerName;
 
+    /**
+     * Constructor de MainWindow.
+     */
     public MainWindow() {
         super("Futoshiki");
         // Primero configuramos la ventana base
@@ -122,6 +126,9 @@ public class MainWindow extends JFrame {
         });
     }
 
+    /**
+     * Crea los componentes de la ventana principal.
+     */
     private void createComponents() {
         // Crear barra de menú primero
         menuBar = new MenuBar();
@@ -137,6 +144,9 @@ public class MainWindow extends JFrame {
         createGamePanel();
     }
 
+    /**
+     * Crea el panel superior de la ventana.
+     */
     private void createTopPanel() {
         // Panel superior
         topPanel = new JPanel();
@@ -169,6 +179,9 @@ public class MainWindow extends JFrame {
         topPanel.add(timerPanel);
     }
 
+    /**
+     * Crea el panel de juego.
+     */
     private void createGamePanel() {
         gamePanel = new JPanel(new BorderLayout(10, 0));
         gamePanel.setBackground(BACKGROUND_COLOR);
@@ -205,6 +218,21 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Actualiza el tamaño del tablero.
+     * 
+     * @param size El nuevo tamaño del tablero.
+     */
+    public void updateBoardSize(int size) {
+        gameBoard.setSize(size);
+        digitPanel.setMaxDigits(size);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Crea el panel de botones.
+     */
     private void createButtonPanel() {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
@@ -227,16 +255,22 @@ public class MainWindow extends JFrame {
         buttonPanel.add(Box.createVerticalGlue());
     }
 
-    public void setTimerType(Configuration config)
-    {
+    /**
+     * Configura el tipo de temporizador.
+     * 
+     * @param config La configuración del temporizador.
+     */
+    public void setTimerType(Configuration config) {
         timerController.setValores(config);
     }
 
+    /**
+     * Inicia el temporizador.
+     */
     public void startTimer() {
         timer = new Timer(1000, new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 timerController.actualizarTiempo();
                 setTimer();
             }
@@ -244,10 +278,11 @@ public class MainWindow extends JFrame {
         timer.start();
     }
 
-    public void restartTimer()
-    {
-        if(timer != null)
-        {
+    /**
+     * Reinicia el temporizador.
+     */
+    public void restartTimer() {
+        if (timer != null) {
             timerController.setSecondsPassed(0);
             timerController.setMinutesPassed(0);
             timerController.setHoursPassed(0);
@@ -255,27 +290,43 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public void stopTimer()
-    {
-        if(timer != null){timer.stop();}
-
+    /**
+     * Detiene el temporizador.
+     */
+    public void stopTimer() {
+        if (timer != null) {
+            timer.stop();
+        }
     }
 
-    public TimerController getTimer()
-    {
+    /**
+     * Obtiene el controlador del temporizador.
+     * 
+     * @return El controlador del temporizador.
+     */
+    public TimerController getTimer() {
         return timerController;
     }
 
-    public void resumeTimer(TimerController tcGuardado)
-    {
+    /**
+     * Reanuda el temporizador con un controlador guardado.
+     * 
+     * @param tcGuardado El controlador del temporizador guardado.
+     */
+    public void resumeTimer(TimerController tcGuardado) {
         timerDisplay.updateTime(tcGuardado.getHoursPassed(), tcGuardado.getMinutesPassed(), tcGuardado.getSecondsPassed());
     }
 
-    private void setTimer()
-    {
+    /**
+     * Actualiza la visualización del temporizador.
+     */
+    private void setTimer() {
         timerDisplay.updateTime(timerController.getHoursPassed(), timerController.getMinutesPassed(), timerController.getSecondsPassed());
     }
 
+    /**
+     * Organiza los componentes de la ventana principal.
+     */
     private void layoutComponents() {
         // Añadir los paneles principales en orden
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -283,6 +334,14 @@ public class MainWindow extends JFrame {
         // No necesitamos añadir buttonPanel aquí porque ya se añadió en createGamePanel
     }
 
+    /**
+     * Inicializa los controladores de la ventana principal.
+     * 
+     * @param configController El controlador de configuración.
+     * @param gameController El controlador del juego.
+     * @param scoreController El controlador de puntuaciones.
+     * @param timerController El controlador del temporizador.
+     */
     public void initializeControllers(ConfigurationController configController,
                                       GameController gameController,
                                       ScoreController scoreController, TimerController timerController) {
@@ -294,8 +353,11 @@ public class MainWindow extends JFrame {
         setupButtonListeners();
         gameBoard.addCellClickListener((row, col) ->
                 gameController.handleCellClick(row, col));
+    }
 
-                                      }
+    /**
+     * Configura los listeners de la ventana principal.
+     */
     private void setupListeners() {
         // Listener para el panel de dígitos
         digitPanel.addDigitSelectListener(digit -> {
@@ -310,6 +372,9 @@ public class MainWindow extends JFrame {
         // Los listeners de los botones se configurarán cuando se inicialicen los controladores
     }
 
+    /**
+     * Configura los listeners de la barra de menú.
+     */
     private void setupMenuListeners() {
         menuBar.addConfigListener(e -> {
             if (configController != null) {
@@ -330,6 +395,9 @@ public class MainWindow extends JFrame {
         });
     }
 
+    /**
+     * Configura los listeners de los botones.
+     */
     private void setupButtonListeners() {
         if (gameController == null) return;
         
@@ -346,6 +414,12 @@ public class MainWindow extends JFrame {
         gameButtons[10].addActionListener(e -> showAbout());                      // ACERCA DE
     }
 
+    /**
+     * Crea un botón con estilo.
+     * 
+     * @param text El texto del botón.
+     * @return El botón creado.
+     */
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -374,6 +448,12 @@ public class MainWindow extends JFrame {
         return button;
     }
 
+    /**
+     * Crea un label con estilo.
+     * 
+     * @param text El texto del label.
+     * @return El label creado.
+     */
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -383,6 +463,13 @@ public class MainWindow extends JFrame {
 
     // Métodos públicos para controladores y actualizaciones
 
+    /**
+     * Inicializa los controladores de la ventana principal.
+     * 
+     * @param configController El controlador de configuración.
+     * @param gameController El controlador del juego.
+     * @param scoreController El controlador de puntuaciones.
+     */
     public void initializeControllers(
             ConfigurationController configController,
             GameController gameController,
@@ -396,6 +483,11 @@ public class MainWindow extends JFrame {
             gameController.handleCellClick(row, col));
     }
 
+    /**
+     * Habilita o deshabilita los botones del juego.
+     * 
+     * @param enabled Indica si los botones deben estar habilitados o no.
+     */
     public void enableGameButtons(boolean enabled) {
         for (int i = 1; i < gameButtons.length - 1; i++) {  // Excluir INICIAR JUEGO y TOP 10
             if (i != 7) { // No deshabilitar CARGAR JUEGO
@@ -409,44 +501,95 @@ public class MainWindow extends JFrame {
         gameButtons[gameButtons.length - 1].setEnabled(true);
     }
 
+    /**
+     * Actualiza el temporizador.
+     * 
+     * @param hours Las horas.
+     * @param minutes Los minutos.
+     * @param seconds Los segundos.
+     */
     public void updateTimer(int hours, int minutes, int seconds) {
         timerDisplay.updateTime(hours, minutes, seconds);
     }
 
+    /**
+     * Establece el nombre del jugador.
+     * 
+     * @param name El nombre del jugador.
+     */
     public void setPlayerName(String name) {
         this.playerName = name;
         playerNameLabel.setText("Nombre del jugador: " + name);
     }
 
+    /**
+     * Establece el nivel del juego.
+     * 
+     * @param level El nivel del juego.
+     */
     public void setLevel(String level) {
         levelLabel.setText("NIVEL " + level.toUpperCase());
     }
 
+    /**
+     * Obtiene el tablero del juego.
+     * 
+     * @return El tablero del juego.
+     */
     public GameBoard getGameBoard() {
         return gameBoard;
     }
 
+    /**
+     * Obtiene el panel de dígitos.
+     * 
+     * @return El panel de dígitos.
+     */
     public DigitPanel getDigitPanel() {
         return digitPanel;
     }
 
+    /**
+     * Obtiene el nombre del jugador.
+     * 
+     * @return El nombre del jugador.
+     */
     public String getPlayerName() {
         return playerName;
     }
 
+    /**
+     * Obtiene la configuración del juego.
+     * 
+     * @return La configuración del juego.
+     */
     public Configuration getConfiguration() {
         return configuration;
     }
 
+    /**
+     * Establece la configuración del juego.
+     * 
+     * @param config La configuración del juego.
+     */
     public void setConfiguration(Configuration config) {
+        System.out.println("MainWindow: Actualizando configuración");
         this.configuration = config;
         updateConfigurationView();
+        // Guardar la configuración cuando se actualiza en la ventana principal
+        ConfigurationManager.saveConfiguration(config);
     }
 
+    /**
+     * Actualiza la vista según la nueva configuración.
+     */
     public void updateConfigurationView() {
         // Actualizar la vista según la nueva configuración
         mainPanel.removeAll();
         gamePanel.removeAll();
+
+        // Actualizar el panel de dígitos con el nuevo tamaño
+        digitPanel.setMaxDigits(configuration.getGridSize());
 
         // Recrear el panel lateral con dígitos y botones
         JPanel sidePanel = new JPanel();
@@ -475,11 +618,17 @@ public class MainWindow extends JFrame {
         gamePanel.repaint();
     }
 
+    /**
+     * Muestra el diálogo de ayuda.
+     */
     private void showHelp() {
         HelpDialog helpDialog = new HelpDialog(this);
         helpDialog.setVisible(true);
     }
 
+    /**
+     * Muestra el diálogo "Acerca de".
+     */
     private void showAbout() {
         JOptionPane.showMessageDialog(this,
             "Futoshiki v1.0\n" +

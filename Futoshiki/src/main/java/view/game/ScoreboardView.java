@@ -13,6 +13,9 @@ import model.game.GameScore;
 import javax.swing.JLabel;
 import java.awt.FlowLayout;
 
+/**
+ * Clase ScoreboardView que representa la vista del tablero de puntuaciones.
+ */
 public class ScoreboardView extends JPanel {
     private JTable scoreTable;
     private JComboBox<String> difficultyFilter;
@@ -20,6 +23,10 @@ public class ScoreboardView extends JPanel {
     private Top10Manager top10Manager;
     private static ScoreboardView instance;
 
+    /**
+     * Constructor de ScoreboardView.
+     * Inicializa los componentes y carga los scores iniciales.
+     */
     public ScoreboardView() {
         this.top10Manager = Top10Manager.getInstance();
         setLayout(new BorderLayout(10, 10));
@@ -29,6 +36,11 @@ public class ScoreboardView extends JPanel {
         updateScores(); // Cargar scores iniciales
     }
 
+    /**
+     * Obtiene la instancia única de ScoreboardView.
+     * 
+     * @return La instancia de ScoreboardView.
+     */
     public static ScoreboardView getInstance() {
         if (instance == null) {
             instance = new ScoreboardView();
@@ -36,6 +48,9 @@ public class ScoreboardView extends JPanel {
         return instance;
     }
     
+    /**
+     * Inicializa los componentes de la vista.
+     */
     private void initializeComponents() {
         // Crear modelo de tabla
         String[] columnNames = {"Posición", "Jugador", "Tiempo", "Tamaño"};
@@ -58,6 +73,9 @@ public class ScoreboardView extends JPanel {
         difficultyFilter.addActionListener(e -> updateScores());
     }
     
+    /**
+     * Organiza los componentes en el panel.
+     */
     private void layoutComponents() {
         // Panel superior con título y filtro
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -72,6 +90,9 @@ public class ScoreboardView extends JPanel {
         setPreferredSize(new Dimension(400, 300));
     }
     
+    /**
+     * Actualiza los scores mostrados en la tabla.
+     */
     public void updateScores() {
         // Limpiar tabla actual
         tableModel.setRowCount(0);
@@ -96,10 +117,24 @@ public class ScoreboardView extends JPanel {
         }
     }
     
+    /**
+     * Formatea el tiempo en horas, minutos y segundos.
+     * 
+     * @param hours Horas.
+     * @param minutes Minutos.
+     * @param seconds Segundos.
+     * @return El tiempo formateado como cadena.
+     */
     private String formatTime(int hours, int minutes, int seconds) {
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
     
+    /**
+     * Mapea la dificultad mostrada a su representación interna.
+     * 
+     * @param displayDifficulty La dificultad mostrada.
+     * @return La dificultad interna.
+     */
     private String mapDifficultyToInternal(String displayDifficulty) {
         switch(displayDifficulty) {
             case "Fácil": return "Facil";

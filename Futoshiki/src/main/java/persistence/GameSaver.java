@@ -22,8 +22,14 @@ import util.constants.FileConstants;
 
 public class GameSaver {
     
-    // Guarda el estado actual del juego
-    // @return true si se guardó correctamente
+    /**
+     * Guarda el estado actual del juego.
+     * 
+     * @param gameState El estado del juego a guardar.
+     * @param playerName El nombre del jugador.
+     * @param config La configuración del juego.
+     * @return true si se guardó correctamente, false en caso contrario.
+     */
     public static boolean saveGame(GameState gameState, String playerName, Configuration config) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -54,9 +60,6 @@ public class GameSaver {
             Element boardElement = doc.createElement("board");
             FutoshikiBoard board = gameState.getBoard();
             boardElement.setAttribute("size", String.valueOf(board.getSize()));
-
-
-
 
             // Guardar estado de cada celda
             for (int i = 0; i < board.getSize(); i++) {
@@ -103,8 +106,12 @@ public class GameSaver {
         }
     }
     
-    // Carga el último juego guardado
-    // @return GameState con el estado del juego o null si no hay juego guardado
+    /**
+     * Carga el último juego guardado.
+     * 
+     * @param playerName El nombre del jugador.
+     * @return GameState con el estado del juego o null si no hay juego guardado.
+     */
     public static GameState loadGame(String playerName) {
         try {
             File file = new File(FileConstants.CURRENT_GAME_FILE);

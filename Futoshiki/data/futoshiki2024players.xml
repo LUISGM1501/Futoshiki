@@ -15,6 +15,12 @@
         <scores/>
     </jugador>
     <jugador>
+        <nombre>Samir</nombre>
+        <password>952e3e4b61ca6a03da9152eaccae984f088c0fcdc0574a4f0733291b7a7d40e9</password>
+        <email>Samir@gmail.com</email>
+        <scores/>
+    </jugador>
+    <jugador>
         <nombre>Josh</nombre>
         <password>8680401f22ec9cebffc098d395c3ac14f452c6e9e172a253a53ba4d4c07d53cc</password>
         <email>Josh@gmail.com</email>

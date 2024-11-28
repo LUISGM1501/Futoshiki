@@ -14,15 +14,27 @@ public class MenuBar extends JMenuBar {
     private JMenu aboutMenu;
     private JMenuBar menuBar;
 
+    /**
+     * Constructor de la clase MenuBar.
+     * Inicializa y añade los menús a la barra de menú.
+     */
     public MenuBar() {
         initializeMenus();
         addMenus();
     }
 
+    /**
+     * Obtiene la barra de menú.
+     * 
+     * @return La barra de menú.
+     */
     public JMenuBar getMenuBar() {
         return menuBar;
     }
 
+    /**
+     * Inicializa los menús de la barra de menú.
+     */
     private void initializeMenus() {
         // Menú Configurar
         configMenu = new JMenu("Configurar");
@@ -50,6 +62,9 @@ public class MenuBar extends JMenuBar {
         aboutMenu.add(aboutItem);
     }
 
+    /**
+     * Añade los menús a la barra de menú.
+     */
     private void addMenus() {
         add(configMenu);
         add(playMenu);
@@ -58,22 +73,47 @@ public class MenuBar extends JMenuBar {
         add(aboutMenu);
     }
 
+    /**
+     * Añade un ActionListener al menú de configuración.
+     * 
+     * @param listener El ActionListener a añadir.
+     */
     public void addConfigListener(ActionListener listener) {
         configMenu.getItem(0).addActionListener(listener);
     }
 
+    /**
+     * Añade un ActionListener al menú de jugar.
+     * 
+     * @param listener El ActionListener a añadir.
+     */
     public void addPlayListener(ActionListener listener) {
         playMenu.getItem(0).addActionListener(listener);
     }
 
+    /**
+     * Añade un ActionListener al menú de Top 10.
+     * 
+     * @param listener El ActionListener a añadir.
+     */
     public void addTop10Listener(ActionListener listener) {
         top10Menu.getItem(0).addActionListener(listener);
     }
 
+    /**
+     * Añade un ActionListener al menú de ayuda.
+     * 
+     * @param listener El ActionListener a añadir.
+     */
     public void addHelpListener(ActionListener listener) {
         helpMenu.getItem(0).addActionListener(listener);
     }
 
+    /**
+     * Añade un ActionListener al menú de acerca de.
+     * 
+     * @param listener El ActionListener a añadir.
+     */
     public void addAboutListener(ActionListener listener) {
         aboutMenu.getItem(0).addActionListener(listener);
     }

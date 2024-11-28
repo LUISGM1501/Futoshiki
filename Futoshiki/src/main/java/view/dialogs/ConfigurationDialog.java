@@ -36,6 +36,11 @@ public class ConfigurationDialog extends JDialog {
     private JButton cancelButton;
     private boolean isConfirmed = false;
 
+    /**
+     * Constructor de la clase ConfigurationDialog.
+     * 
+     * @param owner El frame propietario del diálogo.
+     */
     public ConfigurationDialog(Frame owner) {
         super(owner, "Configuración", true);
         initComponents();
@@ -46,6 +51,9 @@ public class ConfigurationDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
 
+    /**
+     * Inicializa los componentes del diálogo.
+     */
     private void initComponents() {
         // Tamaño de cuadrícula
         String[] sizes = {"3 x 3", "4 x 4", "5 x 5"};
@@ -90,6 +98,31 @@ public class ConfigurationDialog extends JDialog {
         cancelButton = new JButton("Cancelar");
     }
 
+    /**
+     * Establece la configuración actual en el diálogo.
+     * 
+     * @param config La configuración a establecer.
+     */
+    public void setConfiguration(Configuration config) {
+        // Establecer valores actuales de la configuración
+        gridSizeCombo.setSelectedItem(String.valueOf(config.getGridSize()));
+        difficultyCombo.setSelectedItem(config.getDifficulty());
+        multiLevelCheck.setSelected(config.isMultiLevel());
+        chronoButton.setSelected(config.getTimerType().equals("Cronómetro"));
+        timerButton.setSelected(config.getTimerType().equals("Temporizador"));
+        noTimerButton.setSelected(config.getTimerType().equals("No"));
+        hoursSpinner.setValue(config.getTimerHours());
+        minutesSpinner.setValue(config.getTimerMinutes());
+        secondsSpinner.setValue(config.getTimerSeconds());
+        rightPanelButton.setSelected(config.getDigitPanelPosition().equals("right"));
+        leftPanelButton.setSelected(config.getDigitPanelPosition().equals("left"));
+        playerNameField.setText(config.getPlayerName());
+        isConfirmed = false;
+    }
+
+    /**
+     * Organiza los componentes en el diálogo.
+     */
     private void layoutComponents() {
         setLayout(new BorderLayout());
         
@@ -147,44 +180,58 @@ public class ConfigurationDialog extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Inicializa los valores del diálogo.
+     */
     private void initializeValues() {
         // Cargar valores desde la configuración actual
     }
 
-
-    private void setupListeners()
-    {
+    /**
+     * Configura los listeners para los botones.
+     */
+    private void setupListeners() {
         okButton.addActionListener(e -> exit());
     }
 
-
-    private void exit()
-    {
+    /**
+     * Cierra el diálogo.
+     */
+    private void exit() {
         System.out.println(getTimerType());
         System.out.println(secondsSpinner.getValue());
         dispose();
     }
 
-    private int getGridSize()
-    {
+    /**
+     * Obtiene el tamaño de la cuadrícula seleccionada.
+     * 
+     * @return El tamaño de la cuadrícula.
+     */
+    private int getGridSize() {
         char gridSize = gridSizeCombo.getSelectedItem().toString().charAt(0);
-
         return Character.getNumericValue(gridSize);
     }
 
-    private String getTimerType()
-    {
-        if(timerButton.isSelected())
-        {
+    /**
+     * Obtiene el tipo de temporizador seleccionado.
+     * 
+     * @return El tipo de temporizador.
+     */
+    private String getTimerType() {
+        if (timerButton.isSelected()) {
             return timerButton.getText();
-        }else if(chronoButton.isSelected())
-        {
+        } else if (chronoButton.isSelected()) {
             return chronoButton.getText();
         }
-
         return noTimerButton.getText();
     }
 
+    /**
+     * Obtiene la configuración actual del diálogo.
+     * 
+     * @return La configuración actual.
+     */
     public Configuration getConfiguration() {
         Configuration config = new Configuration();
         config.setTimerType(getTimerType());
@@ -198,10 +245,20 @@ public class ConfigurationDialog extends JDialog {
         return config;
     }
 
+    /**
+     * Verifica si la configuración fue confirmada.
+     * 
+     * @return true si fue confirmada, false en caso contrario.
+     */
     public boolean isConfirmed() {
         return isConfirmed;
     }
 
+    /**
+     * Establece si la configuración fue confirmada.
+     * 
+     * @param confirmed true si fue confirmada, false en caso contrario.
+     */
     public void setConfirmed(boolean confirmed) {
         this.isConfirmed = confirmed;
     }
