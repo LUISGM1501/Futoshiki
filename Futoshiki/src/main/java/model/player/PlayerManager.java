@@ -39,8 +39,11 @@ public class PlayerManager {
         Player newPlayer = new Player(name, password, email);
         players.put(name, newPlayer);
         
-        // Guardar en XML
-        XMLPlayerManager.savePlayers(players);
+        // Guardar inmediatamente en XML para persistir los cambios
+        boolean saved = XMLPlayerManager.savePlayers(players);
+        if (!saved) {
+            return "Error al guardar el jugador";
+        }
         
         return null;
     }
@@ -48,16 +51,24 @@ public class PlayerManager {
     // Inicia sesión de un jugador
     // @return String con mensaje de error o null si el login fue exitoso
     public String login(String name, String password) {
+        System.out.println("PlayerManager: Verificando usuario " + name);
+        System.out.println("Jugadores cargados: " + players.keySet());
+        
         Player player = players.get(name);
         
         if (player == null) {
+            System.out.println("PlayerManager: Usuario no encontrado");
             return "Jugador no encontrado";
         }
         
+        System.out.println("PlayerManager: Usuario encontrado, verificando contraseña");
+        
         if (!player.authenticate(password)) {
+            System.out.println("PlayerManager: Contraseña incorrecta");
             return "Contraseña incorrecta";
         }
         
+        System.out.println("PlayerManager: Login exitoso");
         currentPlayer = player;
         return null;
     }

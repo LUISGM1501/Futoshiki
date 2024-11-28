@@ -4,13 +4,20 @@
         <nombre>Andres</nombre>
         <password>1082d9aa09db251f9dd924189c728ce64dc98dc60b50b3282ec432da26495865</password>
         <email>a.hernandez.5@estudiantec.cr</email>
+        <token>a5b861ef9bf45776e7dbdfb47fc247a34c7db28199dc3798563575e757cdba77</token>
         <scores/>
     </jugador>
     <jugador>
         <nombre>Luis</nombre>
-        <password>cac37ff6ad99139f71d4c65227dd67e1229c6e731890b882ddbcf7ee7e7dc8d7</password>
+        <password>8659797e1617374bb28ae46534c8d63095cf731901e1411a0f9b64a062482c5f</password>
         <email>gerardomax64@gmail.com</email>
-        <token>9327052309588d0233843b6da0798b919c006f3ecbe53410bea11706d4d15056</token>
+        <token>94327fde0025a63d79246290709ad389a2bf0793680ac24f2c2925324cdf7ee7</token>
+        <scores/>
+    </jugador>
+    <jugador>
+        <nombre>Josh</nombre>
+        <password>8680401f22ec9cebffc098d395c3ac14f452c6e9e172a253a53ba4d4c07d53cc</password>
+        <email>Josh@gmail.com</email>
         <scores/>
     </jugador>
 </jugadores>

@@ -25,7 +25,7 @@ public class XMLPlayerManager {
     private static final String PLAYERS_FILE = FileConstants.PLAYERS_FILE;
     
     // Guarda la lista de jugadores en XML
-    public static void savePlayers(Map<String, Player> players) {
+    public static boolean savePlayers(Map<String, Player> players) {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -40,20 +40,20 @@ public class XMLPlayerManager {
                 Element playerElement = doc.createElement("jugador");
                 
                 Element nameElement = doc.createElement("nombre");
-                nameElement.appendChild(doc.createTextNode(player.getName()));
+                nameElement.setTextContent(player.getName());
                 playerElement.appendChild(nameElement);
                 
                 Element passwordElement = doc.createElement("password");
-                passwordElement.appendChild(doc.createTextNode(player.getPasswordHash()));
+                passwordElement.setTextContent(player.getPasswordHash());
                 playerElement.appendChild(passwordElement);
                 
                 Element emailElement = doc.createElement("email");
-                emailElement.appendChild(doc.createTextNode(player.getEmail()));
+                emailElement.setTextContent(player.getEmail());
                 playerElement.appendChild(emailElement);
                 
                 if (player.getRecoveryToken() != null) {
                     Element tokenElement = doc.createElement("token");
-                    tokenElement.appendChild(doc.createTextNode(player.getRecoveryToken()));
+                    tokenElement.setTextContent(player.getRecoveryToken());
                     playerElement.appendChild(tokenElement);
                 }
                 
@@ -76,12 +76,15 @@ public class XMLPlayerManager {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File(PLAYERS_FILE));
             transformer.transform(source, result);
             
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
     
@@ -91,7 +94,10 @@ public class XMLPlayerManager {
         
         try {
             File file = new File(PLAYERS_FILE);
+            System.out.println("XMLPlayerManager: Cargando jugadores desde " + file.getAbsolutePath());
+            
             if (!file.exists()) {
+                System.out.println("XMLPlayerManager: Archivo de jugadores no existe");
                 return players;
             }
             
@@ -99,7 +105,7 @@ public class XMLPlayerManager {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(file);
             doc.getDocumentElement().normalize();
-            
+
             NodeList playerNodes = doc.getElementsByTagName("jugador");
             
             for (int i = 0; i < playerNodes.getLength(); i++) {
@@ -112,6 +118,11 @@ public class XMLPlayerManager {
                     String passwordHash = getElementContent(playerElement, "password");
                     String email = getElementContent(playerElement, "email");
                     String token = getElementContent(playerElement, "token");
+
+                    System.out.println("XMLPlayerManager: Jugador encontrado - " + name);
+                    System.out.println("XMLPlayerManager: Contraseña hash - " + passwordHash);
+                    System.out.println("XMLPlayerManager: Email - " + email);
+                    System.out.println("XMLPlayerManager: Token - " + token);
                     
                     Player player = new Player(name, passwordHash, email);
                     if (token != null && !token.isEmpty()) {

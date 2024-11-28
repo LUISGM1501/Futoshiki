@@ -1,6 +1,9 @@
 package model.game;
 
-public class GameScore implements Comparable<GameScore> {
+import java.io.Serializable;
+
+public class GameScore implements Comparable<GameScore>, Serializable {
+    private static final long serialVersionUID = 1L;
     private String playerName;
     private int hours;
     private int minutes;

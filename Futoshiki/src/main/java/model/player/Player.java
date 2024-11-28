@@ -2,7 +2,6 @@ package model.player;
 
 import java.io.Serializable;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,14 +18,20 @@ public class Player implements Serializable {
     
     public Player(String name, String password, String email) {
         this.name = name;
-        this.passwordHash = hashPassword(password);
+        // Si el password ya es un hash (al cargar del XML), usarlo directamente
+        if (password.length() == 64) { // SHA-256 produce un hash de 64 caracteres
+            this.passwordHash = password;
+        } else {
+            this.passwordHash = hashPassword(password);
+        }
         this.email = email;
         this.scores = new ArrayList<>();
     }
     
     // Métodos de autenticación
     public boolean authenticate(String password) {
-        return this.passwordHash.equals(hashPassword(password));
+        String inputHash = hashPassword(password);
+        return this.passwordHash.equals(inputHash);
     }
     
     public void changePassword(String newPassword) {
@@ -45,19 +50,22 @@ public class Player implements Serializable {
     // Método para hash de contraseña
     private String hashPassword(String password) {
         try {
+            // Usar UTF-8 para consistencia en el encoding
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes());
+            byte[] hash = digest.digest(password.getBytes("UTF-8"));
             
-            // Convertir bytes a hexadecimal
+            // Convertir bytes a hexadecimal de manera consistente
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
                 hexString.append(hex);
             }
             return hexString.toString();
             
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

@@ -399,9 +399,6 @@ public class GameController {
     private void handleGameCompletion() {
         if(isMultiNivel)
         {
-
-
-
             selectedDifficulty = nextDifficulty(selectedDifficulty);
 
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
@@ -409,8 +406,7 @@ public class GameController {
                     .filter(game -> game.getTamano() == selectedSize)
                     .toList();
             initializeNewGame(gamesForSize, selectedDifficulty, selectedSize);
-        }else
-        {
+        } else {
             stopTimer();
             view.stopTimer();
             JOptionPane.showMessageDialog(view,
@@ -420,13 +416,16 @@ public class GameController {
 
             // Calcular tiempo total
             int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
+            System.out.println("Juego completado en " + totalSeconds + " segundos");
 
             // Verificar si califica para el Top 10
             if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds)) {
+                System.out.println("¡El jugador califica para el Top 10!");
                 int hours = totalSeconds / 3600;
                 int minutes = (totalSeconds % 3600) / 60;
                 int seconds = totalSeconds % 60;
 
+                System.out.println("Agregando score: " + hours + ":" + minutes + ":" + seconds);
                 top10Manager.addScore(new model.game.GameScore(
                         view.getPlayerName(),
                         hours,
@@ -435,13 +434,14 @@ public class GameController {
                         gameState.getDifficulty(),
                         gameState.getBoard().getSize()
                 ));
+            } else {
+                System.out.println("El jugador no calificó para el Top 10");
             }
 
             isGameStarted = false;
             view.enableGameButtons(false);
             view.getGameBoard().setPlayable(false);
         }
-
     }
 
     private void startTimer() {
