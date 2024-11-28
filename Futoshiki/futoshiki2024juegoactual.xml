@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <savedGame>
-  <player>Luis</player>
+  <player>Invitado</player>
   <gameState>
-
-    <difficulty>Facil</difficulty>
-    <config>model.config.Configuration@93b74d</config>
+    <difficulty>Intermedio</difficulty>
+    <config>model.config.Configuration@4467ff7d</config>
     <board size="3">
-      <cell col="0" constant="true" rightInequality="&gt;" row="0" value="3"/>
-      <cell bottomInequality="v" col="1" constant="false" row="0" value="2"/>
-      <cell col="2" constant="false" row="0" value="0"/>
-      <cell col="0" constant="false" row="1" value="0"/>
-      <cell col="1" constant="false" row="1" value="1"/>
-      <cell col="2" constant="false" row="1" value="0"/>
-      <cell col="0" constant="false" row="2" value="0"/>
-      <cell col="1" constant="false" row="2" value="0"/>
-      <cell col="2" constant="false" row="2" value="0"/>
+      <cell bottomInequality="^" col="0" constant="true" rightInequality="&lt;" row="0" value="1"/>
+      <cell bottomInequality="^" col="1" constant="true" rightInequality="&gt;" row="0" value="2"/>
+      <cell col="2" constant="true" rightInequality="&gt;" row="0" value="3"/>
+      <cell bottomInequality="v" col="0" constant="true" rightInequality="&gt;" row="1" value="3"/>
+      <cell bottomInequality="^" col="1" constant="true" rightInequality="&lt;" row="1" value="1"/>
+      <cell col="2" constant="true" rightInequality="&gt;" row="1" value="2"/>
+      <cell bottomInequality="^" col="0" constant="true" row="2" value="2"/>
+      <cell bottomInequality="v" col="1" constant="true" row="2" value="3"/>
+      <cell col="2" constant="true" row="2" value="1"/>
     </board>
   </gameState>
 </savedGame>

@@ -59,7 +59,7 @@ public class GameController {
     }
 
     private void loadAvailableGames() {
-        this.availableGames = XMLHandler.loadGames();
+        this.availableGames = XMLHandler.loadAleatorio();
     }
 
     public void startGame() {
@@ -216,6 +216,10 @@ public class GameController {
         }
 
         int previousValue = board.getValue(row, col);
+        if (!board.setCellValue(row, col, selectedDigit))
+        {
+            System.out.println("prueba");
+        }
         if (board.setCellValue(row, col, selectedDigit)) {
             moves.push(new Move(row, col, selectedDigit, previousValue));
             redoMoves.clear();
@@ -471,7 +475,7 @@ public class GameController {
                     JOptionPane.INFORMATION_MESSAGE);
 
             // Calcular tiempo total
-            int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
+            totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
 
             // Verificar si califica para el Top 10
             if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds)) {

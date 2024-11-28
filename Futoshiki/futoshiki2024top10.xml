@@ -1,18 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <top10>
     <nivel dificultad="Facil">
+        <score horas="0" jugador="Invitado" minutos="0" segundos="5" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="6" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="7" tamano="3"/>
         <score horas="0" jugador="Luis" minutos="0" segundos="9" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="10" tamano="3"/>
         <score horas="0" jugador="Andres" minutos="0" segundos="11" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="11" tamano="3"/>
         <score horas="0" jugador="Luis" minutos="0" segundos="12" tamano="3"/>
         <score horas="0" jugador="Invitado" minutos="0" segundos="13" tamano="3"/>
         <score horas="0" jugador="Invitado" minutos="0" segundos="14" tamano="3"/>
-        <score horas="0" jugador="Josh" minutos="2" segundos="59" tamano="4"/>
     </nivel>
     <nivel dificultad="Intermedio">
-        <score horas="0" jugador="Luis" minutos="0" segundos="24" tamano="3"/>
-        <score horas="0" jugador="Luis" minutos="0" segundos="52" tamano="4"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="7" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="7" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="8" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="8" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="9" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="9" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="10" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="10" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="10" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="10" tamano="3"/>
     </nivel>
     <nivel dificultad="Dificil">
         <score horas="0" jugador="Luis" minutos="0" segundos="15" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="25" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="26" tamano="3"/>
     </nivel>
 </top10>

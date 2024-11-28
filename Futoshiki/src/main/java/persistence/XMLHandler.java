@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import controller.game.RandomGames;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,7 +52,81 @@ public class XMLHandler {
         
         return games;
     }
-    
+
+
+    public static Map<String, List<GameData>> loadAleatorio() {
+        Map<String, List<GameData>> games = new HashMap<>();
+        games.put("Facil", new ArrayList<>());
+        games.put("Intermedio", new ArrayList<>());
+        games.put("Dificil", new ArrayList<>());
+
+        try {
+            File xmlFile = new File(FileConstants.GAMES_FILE);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList partidas = doc.getElementsByTagName("partida");
+
+            for (int i = 0; i < partidas.getLength(); i++) {
+                Node partidaNode = partidas.item(i);
+
+                if (partidaNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element partida = (Element) partidaNode;
+                    GameData gameData = parseGameData(partida);
+                    games.get(gameData.getNivel()).add(gameData);
+                }
+            }
+
+            GameData gameData = partidaAletoria();
+            games.get("Aleatorio").add(gameData);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return games;
+    }
+
+
+    private static GameData partidaAletoria()
+    {
+        RandomGames rndG = new RandomGames(3);
+        rndG.generarJuegoAleatorio();
+        String[][] desVe = rndG.getDesigualdadesVerticales();
+        String[][] desHor = rndG.getDesigualdesdesHorizanteles();
+        int[][] tabla = rndG.getTabla();
+
+
+        String nivel = "Intermedio";
+        int tamano = 3;
+
+        List<Inequality> listaDesigualdades = new ArrayList<>();
+        Map<String, Integer> constantes = new HashMap<>();
+
+        for(int x = 0; x < tamano; x++)
+        {
+            for(int y = 0; y < tamano; y++)
+            {
+                if(x != tamano - 1 && desVe[x][y] != " ") {listaDesigualdades.add(new Inequality(desVe[x][y],x,y));}
+                if(y != tamano - 1 && desHor[x][y] != " ") {listaDesigualdades.add(new Inequality(desHor[x][y],x,y));}
+                if(tabla[x][y] != 0)
+                {
+                    String key = x + "," + y;
+                    constantes.put(key, tabla[x][y]);
+                }
+            }
+        }
+
+        return new GameData(nivel, tamano, listaDesigualdades, constantes);
+
+    }
+
+
+
+
+
     private static GameData parseGameData(Element partida) {
         String nivel = getElementContent(partida, "nivel");
         int tamano = Integer.parseInt(getElementContent(partida, "cuadricula"));

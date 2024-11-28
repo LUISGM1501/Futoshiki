@@ -31,7 +31,7 @@ public class GameSetupDialog extends JDialog {
         JPanel difficultyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         difficultyPanel.add(new JLabel("Dificultad:"));
         JComboBox<String> difficultyCombo = new JComboBox<>(
-            new String[]{"Facil", "Intermedio", "Dificil"}
+            new String[]{"Facil", "Intermedio", "Dificil", "Aleatorio"}
         );
         difficultyPanel.add(difficultyCombo);
         mainPanel.add(difficultyPanel);
