@@ -696,36 +696,64 @@ public class GameController {
                 minutes,
                 seconds,
                 gameState.getDifficulty(),
-                size  // Agregar el tamaño actual del tablero
+                size
             ));
         }
 
         if(isMultiNivel) {
+            String nextLevel = null;
             if(selectedDifficulty.equals("Facil")) {
-                // Avanzar al siguiente nivel
-                selectedDifficulty = "Intermedio";
+                nextLevel = "Intermedio";
             } else if(selectedDifficulty.equals("Intermedio")) {
-                // Avanzar al siguiente nivel
-                selectedDifficulty = "Dificil";
+                nextLevel = "Dificil";
             }
-            // Si ya está en nivel difícil o avanzó a un nuevo nivel
-            List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
-            if (availableGamesForConfig != null && !availableGamesForConfig.isEmpty()) {
-                gamesForSize = availableGamesForConfig.stream()
-                    .filter(game -> game.getTamano() == selectedSize)
-                    .toList();
-                
-                if (!gamesForSize.isEmpty()) {
-                    String message = selectedDifficulty.equals("Dificil") ? 
-                        "¡Excelente! Juego terminado con éxito. Continuando en nivel difícil." :
-                        "¡Felicitaciones! Avanzando al siguiente nivel.";
+
+            if(nextLevel != null) {
+                String message = nextLevel.equals("Dificil") ? 
+                    "¡Excelente! Juego terminado con éxito. Continuando en nivel difícil." :
+                    "¡Felicitaciones! Avanzando al siguiente nivel.";
                         
-                    JOptionPane.showMessageDialog(view,
-                        message,
-                        "¡Felicitaciones!",
-                        JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(view,
+                    message,
+                    "¡Felicitaciones!",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+                // Determinar si usar XML o generador basado en el tamaño
+                if (size <= 5) {
+                    // Usar juegos del XML para tamaños 3x3 a 5x5
+                    List<GameData> availableGamesForConfig = availableGames.get(nextLevel);
+                    if (availableGamesForConfig != null && !availableGamesForConfig.isEmpty()) {
+                        gamesForSize = availableGamesForConfig.stream()
+                            .filter(game -> game.getTamano() == size)
+                            .toList();
                         
-                    initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, new GameSetupDialog(view));
+                        if (!gamesForSize.isEmpty()) {
+                            selectedDifficulty = nextLevel;
+                            initializeNewGame(gamesForSize, nextLevel, size, new GameSetupDialog(view));
+                            return;
+                        }
+                    }
+                } else {
+                    // Usar generador para tamaños 6x6 en adelante
+                    System.out.println("Generando nuevo juego " + size + "x" + size + " de dificultad " + nextLevel);
+                    FutoshikiBoard newBoard = FutoshikiGenerator.generateGame(size, nextLevel);
+                    
+                    // Actualizar estado
+                    selectedDifficulty = nextLevel;
+                    gameState.setBoard(newBoard);
+                    gameState.setDifficulty(nextLevel);
+                    
+                    // Actualizar vista
+                    view.setLevel(nextLevel);
+                    view.getGameBoard().updateBoard(newBoard);
+                    
+                    // Reiniciar timer y estructuras de control
+                    moves.clear();
+                    redoMoves.clear();
+                    startTime = System.currentTimeMillis();
+                    if(!config.getTimerType().equals("Temporizador")) {
+                        view.restartTimer();
+                    }
                     return;
                 }
             }
