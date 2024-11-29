@@ -19,6 +19,7 @@ import java.awt.FlowLayout;
 public class ScoreboardView extends JPanel {
     private JTable scoreTable;
     private JComboBox<String> difficultyFilter;
+    private JComboBox<String> sizeFilter; // Nuevo filtro para tamaño
     private DefaultTableModel tableModel;
     private Top10Manager top10Manager;
     private static ScoreboardView instance;
@@ -71,19 +72,28 @@ public class ScoreboardView extends JPanel {
         // Filtro de dificultad
         difficultyFilter = new JComboBox<>(new String[]{"Fácil", "Intermedio", "Difícil"});
         difficultyFilter.addActionListener(e -> updateScores());
+
+        // Crear filtro de tamaño
+        String[] sizes = new String[]{"3x3", "4x4", "5x5", "6x6", "7x7", "8x8", "9x9", "10x10"};
+        sizeFilter = new JComboBox<>(sizes);
+        sizeFilter.addActionListener(e -> updateScores());
+
+        // Panel de filtros
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        filterPanel.add(new JLabel("Dificultad: "));
+        filterPanel.add(difficultyFilter);
+        filterPanel.add(new JLabel("Tamaño: "));
+        filterPanel.add(sizeFilter);
+        
+        // Agregar panel de filtros al panel principal
+        add(filterPanel, BorderLayout.NORTH);
     }
     
     /**
      * Organiza los componentes en el panel.
      */
     private void layoutComponents() {
-        // Panel superior con título y filtro
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        topPanel.add(new JLabel("Dificultad: "));
-        topPanel.add(difficultyFilter);
-        
         // Agregar componentes al panel principal
-        add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(scoreTable), BorderLayout.CENTER);
         
         // Tamaño inicial
@@ -98,12 +108,11 @@ public class ScoreboardView extends JPanel {
         tableModel.setRowCount(0);
         
         // Obtener dificultad seleccionada
-        String selectedDifficulty = mapDifficultyToInternal(
-            (String)difficultyFilter.getSelectedItem()
-        );
+        String selectedDifficulty = mapDifficultyToInternal((String)difficultyFilter.getSelectedItem());
+        int selectedSize = Integer.parseInt(((String)sizeFilter.getSelectedItem()).split("x")[0]);
         
-        // Obtener scores para la dificultad seleccionada
-        List<GameScore> scores = top10Manager.getScoresByLevel(selectedDifficulty);
+        // Obtener scores para la dificultad y tamaño seleccionados
+        List<GameScore> scores = top10Manager.getScoresByLevelAndSize(selectedDifficulty, selectedSize);
         
         // Agregar scores a la tabla
         for (int i = 0; i < scores.size(); i++) {

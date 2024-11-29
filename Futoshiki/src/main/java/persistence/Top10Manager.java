@@ -90,6 +90,24 @@ public class Top10Manager {
     }
     
     /**
+     * Obtiene los scores de un nivel y tamaño específico.
+     * 
+     * @param difficulty La dificultad del nivel.
+     * @param size El tamaño del tablero.
+     * @return Una lista de scores para el nivel y tamaño especificado.
+     */
+    public List<GameScore> getScoresByLevelAndSize(String difficulty, int size) {
+        List<GameScore> allScores = new ArrayList<>();
+        for (GameScore score : scoresByLevel.get(difficulty)) {
+            if (score.getGridSize() == size) {
+                allScores.add(score);
+            }
+        }
+        Collections.sort(allScores);
+        return allScores.size() > GameConstants.TOP_10_SIZE ? allScores.subList(0, GameConstants.TOP_10_SIZE) : allScores;
+    }
+
+    /**
      * Carga los scores desde el archivo.
      */
     private void loadScores() {
@@ -192,14 +210,11 @@ public class Top10Manager {
      * 
      * @param level El nivel de dificultad.
      * @param totalSeconds El tiempo total en segundos.
+     * @param size El tamaño del tablero.
      * @return true si el tiempo calificaría para el Top 10, false en caso contrario.
      */
-    public boolean wouldQualifyForTop10(String level, int totalSeconds) {
-        System.out.println("Verificando calificación para Top 10:");
-        System.out.println("Nivel: " + level);
-        System.out.println("Tiempo total: " + totalSeconds + " segundos");
-        
-        List<GameScore> levelScores = scoresByLevel.get(level);
+    public boolean wouldQualifyForTop10(String level, int totalSeconds, int size) {
+        List<GameScore> levelScores = getScoresByLevelAndSize(level, size);
         
         // Si no hay 10 scores, cualquier tiempo califica
         if (levelScores.size() < GameConstants.TOP_10_SIZE) {

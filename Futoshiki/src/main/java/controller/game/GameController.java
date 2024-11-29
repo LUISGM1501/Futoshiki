@@ -548,11 +548,21 @@ public class GameController {
         
         GameState savedGame = GameSaver.loadGame(view.getPlayerName());
         if (savedGame != null) {
-            // Verificar que el tamaño coincide con la configuración actual
-            if (savedGame.getBoard().getSize() != config.getGridSize()) {
+            // Verificar que el tamaño sea válido (3-10)
+            int savedSize = savedGame.getBoard().getSize();
+            if (savedSize < 3 || savedSize > 10) {
                 JOptionPane.showMessageDialog(view,
-                    "El juego guardado es de tamaño " + savedGame.getBoard().getSize() + "x" + 
-                    savedGame.getBoard().getSize() + " pero la configuración actual es de " + 
+                    "El juego guardado tiene un tamaño inválido: " + savedSize,
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Verificar que el tamaño coincide con la configuración actual
+            if (savedSize != config.getGridSize()) {
+                JOptionPane.showMessageDialog(view,
+                    "El juego guardado es de tamaño " + savedSize + "x" + 
+                    savedSize + " pero la configuración actual es de " + 
                     config.getGridSize() + "x" + config.getGridSize() + ".\n" +
                     "Por favor, ajuste el tamaño en la configuración antes de cargar el juego.",
                     "Error",
@@ -672,9 +682,10 @@ public class GameController {
     private void handleGameCompletion() {
         // Calcular tiempo total actual
         int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
+        int size = gameState.getBoard().getSize(); // Obtener el tamaño actual del tablero
         
         // Verificar Top 10 y guardar si califica
-        if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds)) {
+        if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds, size)) {
             int hours = totalSeconds / 3600;
             int minutes = (totalSeconds % 3600) / 60;
             int seconds = totalSeconds % 60;
@@ -685,7 +696,7 @@ public class GameController {
                 minutes,
                 seconds,
                 gameState.getDifficulty(),
-                gameState.getBoard().getSize()
+                size  // Agregar el tamaño actual del tablero
             ));
         }
 
