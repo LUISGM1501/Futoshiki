@@ -61,7 +61,7 @@ public class ConfigurationDialog extends JDialog {
         gridSizeCombo.setSelectedItem("5 x 5"); // Default
 
         // Nivel del juego
-        String[] difficulties = {"Fácil", "Intermedio", "Difícil"};
+        String[] difficulties = {"Fácil", "Intermedio","Aleatorio"};
         difficultyCombo = new JComboBox<>(difficulties);
 
         // Multinivel

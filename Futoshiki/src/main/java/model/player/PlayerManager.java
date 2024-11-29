@@ -97,7 +97,8 @@ public class PlayerManager {
      */
     public String initiatePasswordRecovery(String name) {
         Player player = players.get(name);
-        
+
+
         if (player == null) {
             return "Jugador no encontrado";
         }
@@ -107,6 +108,7 @@ public class PlayerManager {
         XMLPlayerManager.savePlayers(players);
         
         // En lugar de enviar email, mostrar el token
+        EnvioEmail.sendEmail(player.getEmail(), player.getRecoveryToken(), player.getName());
         return "Tu token de recuperación es: " + player.getRecoveryToken();
     }
     

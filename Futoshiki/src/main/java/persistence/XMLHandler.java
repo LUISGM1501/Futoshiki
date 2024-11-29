@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import controller.game.RandomGames;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -55,13 +56,14 @@ public class XMLHandler {
         
         return games;
     }
-    
+
     /**
      * Parsea los datos de una partida desde un elemento XML.
      * 
      * @param partida El elemento XML que representa una partida.
      * @return Un objeto GameData con los datos de la partida.
      */
+
     private static GameData parseGameData(Element partida) {
         String nivel = getElementContent(partida, "nivel");
         int tamano = Integer.parseInt(getElementContent(partida, "cuadricula"));

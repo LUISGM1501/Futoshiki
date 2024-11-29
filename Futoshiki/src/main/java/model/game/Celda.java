@@ -128,6 +128,7 @@ public class Celda {
      */
     public boolean revisarDesigualdadesDer(Celda celdaDerecha) {
         if(celdaDerecha.getValor() == 0) return true;
+
         if(desDer.equals(">") && valor < celdaDerecha.getValor()) return false;
         if(desDer.equals("<") && valor > celdaDerecha.getValor()) return false;
         return true;

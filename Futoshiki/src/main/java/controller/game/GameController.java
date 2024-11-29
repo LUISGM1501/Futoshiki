@@ -10,21 +10,20 @@ import javax.swing.JOptionPane;
 import org.w3c.dom.Element;
 
 import controller.config.ConfigurationController;
+import controller.timer.TimerController;
 import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.FutoshikiGenerator;
+import model.game.GameScore;
 import model.game.GameState;
 import model.game.Move;
-import persistence.ConfigurationManager;
 import persistence.GameSaver;
 import persistence.Top10Manager;
 import persistence.XMLHandler;
 import persistence.XMLHandler.GameData;
 import util.constants.MessageConstants;
 import view.dialogs.GameSetupDialog;
-import model.game.GameScore;
 import view.game.MainWindow;
-import controller.timer.TimerController;
 
 /**
  * Controlador del juego Futoshiki.
@@ -231,6 +230,7 @@ public class GameController {
             GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
             board = createBoard(selectedGame);
         }
+
         
         // Configurar estado del juego
         gameState.setBoard(board);
@@ -306,7 +306,8 @@ public class GameController {
      * @param row Fila de la celda.
      * @param col Columna de la celda.
      */
-    public void handleCellClick(int row, int col) {
+    public void handleCellClick(int row, int col) 
+    {
         System.out.println("\nGameController - handleCellClick iniciado:");
         System.out.println("  Posición: " + row + "," + col);
         System.out.println("  isGameStarted: " + isGameStarted);
@@ -324,6 +325,7 @@ public class GameController {
         System.out.println("  Borrador seleccionado: " + view.getDigitPanel().isEraserSelected());
         
         // Verificar si es celda constante
+
         if (board.isConstant(row, col)) {
             System.out.println("  Error: Intento de modificar una celda constante.");
             JOptionPane.showMessageDialog(view,
@@ -337,7 +339,8 @@ public class GameController {
         boolean isErasing = view.getDigitPanel().isEraserSelected();
         System.out.println("Modo borrador: " + isErasing);
         
-        if (isErasing) {
+        if (isErasing) 
+        {
             int currentValue = board.getValue(row, col);
             if (currentValue > 0) {
                 System.out.println("  Borrando valor en celda: " + currentValue);
@@ -354,6 +357,7 @@ public class GameController {
 
         System.out.println("GameController - Procesando jugada normal");
         // Si no hay dígito seleccionado y no es borrado, mostrar error
+
         if (selectedDigit == 0) {
             System.out.println("  Error: No hay dígito seleccionado.");
             JOptionPane.showMessageDialog(view,
@@ -365,14 +369,19 @@ public class GameController {
 
         // Manejar colocación de dígito
         int previousValue = board.getValue(row, col);
+
         System.out.println("  Intentando colocar dígito: " + selectedDigit + " en celda con valor previo: " + previousValue);
         String error = validateMove(row, col, selectedDigit);
-        
-        if (error == null) {
+        if (board.setCellValue(row, col, selectedDigit)) 
+        {
+            if (error == null) 
+            {
             board.setCellValue(row, col, selectedDigit);
             moves.push(new Move(row, col, selectedDigit, previousValue));
             redoMoves.clear();
             updateGameBoard();
+            }
+
             System.out.println("  Dígito colocado exitosamente.");
 
             if (board.isBoardComplete()) {
@@ -384,6 +393,7 @@ public class GameController {
             JOptionPane.showMessageDialog(view, error, "Error", JOptionPane.ERROR_MESSAGE);
             view.getGameBoard().showError(row, col);
         }
+        
     }
 
     /**
@@ -801,6 +811,7 @@ public class GameController {
         // Si no es multinivel o no hay más niveles disponibles
         finishGame("¡Excelente! Juego terminado con éxito");
     }
+
 
     /**
      * Finaliza el juego con un mensaje.
