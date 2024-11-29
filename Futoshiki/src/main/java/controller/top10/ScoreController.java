@@ -56,7 +56,7 @@ public class ScoreController {
 
         GameScore newScore = new GameScore(playerName, hours, minutes, seconds, difficulty, gridSize);
         if (top10Manager.wouldQualifyForTop10(difficulty, 
-            hours * 3600 + minutes * 60 + seconds)) {
+            hours * 3600 + minutes * 60 + seconds, gridSize)) {
             
             top10Manager.addScore(newScore);
             JOptionPane.showMessageDialog(mainWindow,

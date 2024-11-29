@@ -370,8 +370,12 @@ public class MainWindow extends JFrame {
         this.timerController = timerController;
         
         setupButtonListeners();
-        gameBoard.addCellClickListener((row, col) ->
-                gameController.handleCellClick(row, col));
+        gameBoard.addCellClickListener((row, col) -> {
+            System.out.println("MainWindow: Click en celda [" + row + "," + col + "]");
+            if (gameController != null) {
+                gameController.handleCellClick(row, col);
+            }
+        });
     }
 
     /**
@@ -578,20 +582,23 @@ public class MainWindow extends JFrame {
      * Actualiza la vista según la nueva configuración.
      */
     public void updateConfigurationView() {
-        // Actualizar la vista según la nueva configuración
+        System.out.println("MainWindow: Actualizando vista con nuevo tamaño: " + configuration.getGridSize());
+        
+        // Actualizar el tablero con el nuevo tamaño
+        gameBoard.setSize(configuration.getGridSize());
+        digitPanel.setMaxDigits(configuration.getGridSize());
+        
+        // Recrear el layout
         mainPanel.removeAll();
         gamePanel.removeAll();
-
-        // Actualizar el panel de dígitos con el nuevo tamaño
-        digitPanel.setMaxDigits(configuration.getGridSize());
-
-        // Recrear el panel lateral con dígitos y botones
+        
+        // Recrear el panel lateral
         JPanel sidePanel = new JPanel();
         sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
         sidePanel.setBackground(BACKGROUND_COLOR);
         sidePanel.add(digitPanel);
         sidePanel.add(buttonPanel);
-
+        
         // Añadir componentes en el orden correcto
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(gamePanel, BorderLayout.CENTER);
@@ -604,12 +611,14 @@ public class MainWindow extends JFrame {
             mainPanel.add(sidePanel, BorderLayout.EAST);
             gamePanel.add(gameBoard, BorderLayout.CENTER);
         }
-
-        // Actualizar la interfaz
+        
+        // Forzar actualización visual
         mainPanel.revalidate();
         mainPanel.repaint();
         gamePanel.revalidate();
         gamePanel.repaint();
+        
+        System.out.println("MainWindow: Actualización de vista completada");
     }
 
     /**
