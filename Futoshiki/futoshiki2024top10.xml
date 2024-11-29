@@ -28,5 +28,7 @@
         <score horas="0" jugador="Luis" minutos="0" segundos="15" tamano="3"/>
         <score horas="0" jugador="Invitado" minutos="0" segundos="25" tamano="3"/>
         <score horas="0" jugador="Invitado" minutos="0" segundos="26" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="1" segundos="3" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="1" segundos="5" tamano="3"/>
     </nivel>
 </top10>
