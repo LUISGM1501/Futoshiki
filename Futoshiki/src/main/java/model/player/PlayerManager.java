@@ -108,7 +108,7 @@ public class PlayerManager {
         XMLPlayerManager.savePlayers(players);
         
         // En lugar de enviar email, mostrar el token
-        EnvioEmail.sendEmail(player.getEmail(), player.getRecoveryToken());
+        EnvioEmail.sendEmail(player.getEmail(), player.getRecoveryToken(), player.getName());
         return "Tu token de recuperación es: " + player.getRecoveryToken();
     }
     

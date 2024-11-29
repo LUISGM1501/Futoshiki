@@ -73,7 +73,7 @@ public class GameController {
      * Carga los juegos disponibles desde el XML.
      */
     private void loadAvailableGames() {
-        this.availableGames = XMLHandler.loadAleatorio();
+        this.availableGames = XMLHandler.loadGames();
     }
 
     /**
@@ -291,10 +291,9 @@ public class GameController {
         // Manejar colocación de dígito
         int previousValue = board.getValue(row, col);
 
+        String error = validateMove(row, col, selectedDigit);
         if (board.setCellValue(row, col, selectedDigit)) 
         {
-            String error = validateMove(row, col, selectedDigit);
-        
             if (error == null) 
             {
             board.setCellValue(row, col, selectedDigit);
@@ -644,8 +643,7 @@ public class GameController {
 
             List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
             if (availableGamesForConfig != null && !availableGamesForConfig.isEmpty()) {
-                gamesForSize = availableGamesForConfig.stream()
-                    .filter(game -> game.getTamano() == selectedSize)
+                gamesForSize = (List<GameData>) availableGamesForConfig.stream().filter(game -> game.getTamano() == selectedSize);
 
                 
                 if (!gamesForSize.isEmpty()) {

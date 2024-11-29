@@ -9,9 +9,7 @@ import java.io.File;
  */
 public class HelpDialog extends JDialog {
     private static final String[] HELP_IMAGES = {
-        "manual1.png",
-        "manual2.png",
-        "manual3.png"
+        "manual2.png","manual3.png", "manual4.png","manual5.png"
     };
     
     private static final String IMAGE_PATH = "src/main/java/view/dialogs/Imagenes/";

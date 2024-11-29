@@ -28,9 +28,9 @@
     </jugador>
     <jugador>
         <nombre>UsuarioPrueba</nombre>
-        <password>0d9d09e157f7c29a43c02e57f081915d6fe2f10da1710672086f8ad73bb95cb2</password>
+        <password>50e189432ccfe7a62ba3e1eee63dac91ecb855b2a618dd9ef9d46480a868e95b</password>
         <email>foogles05@gmail.com</email>
-        <token>fd5a411c18926573227c18680d6f1b01bcc07f8fcd0fa07644b37bcf03aff9f6</token>
+        <token>def65bab3cb0f799e4956dfa869a049c09abd48fc58a41e3ed87c14de59b981e</token>
         <scores/>
     </jugador>
 </jugadores>

@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class EnvioEmail{
 
-    public static void sendEmail(String email, String token) {
+    public static void sendEmail(String email, String token, String usuario) {
 
         String from = "foogles05@gmail.com";
         String host = "smtp.gmail.com";
@@ -39,10 +39,11 @@ public class EnvioEmail{
 
             message.setSubject("Recuperación de Contraseña");
 
-            message.setText("Su token de recuperación es: " + token);
+            message.setText("\tDe parte del equipo del juego Futoshiki,esperamos tenga un buen día/tarde" +
+                    "\n\nAca se envia el token de recuperación para el usuario " + usuario +
+                    " con el cual podra reestablecer su contraseña:\n " + token + "\n\nEsperamos que le vaya bien, y disfrute jugando futoshiki!!");
 
             Transport.send(message);
-            System.out.println("Email sent successfully to " + email);
 
         } catch (MessagingException mex) {
             mex.printStackTrace();
