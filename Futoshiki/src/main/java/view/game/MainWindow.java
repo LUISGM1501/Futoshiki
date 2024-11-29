@@ -8,11 +8,14 @@ import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import view.dialogs.HelpDialog;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import controller.config.ConfigurationController;
@@ -20,10 +23,13 @@ import controller.game.GameController;
 import controller.timer.TimerController;
 import controller.top10.ScoreController;
 import model.config.Configuration;
+import model.player.PlayerManager;
 import persistence.ConfigurationManager;
 import persistence.GameSaver;
-import util.constants.GameConstants;
 import view.components.TimerDisplay;
+import view.dialogs.HelpDialog;
+import view.dialogs.PlayerLoginDialog;
+
 
 public class MainWindow extends JFrame {
     // Constantes para estilo
@@ -34,7 +40,6 @@ public class MainWindow extends JFrame {
     private static final int WINDOW_HEIGHT = 700;
     
     // Componentes principales
-    private MenuBar menuBar;
     private JPanel mainPanel;
     private JPanel gamePanel;
     private DigitPanel digitPanel;
@@ -65,7 +70,8 @@ public class MainWindow extends JFrame {
         "CARGAR JUEGO", 
         "TOP 10",
         "AYUDA",
-        "ACERCA DE"
+        "ACERCA DE",
+        "CERRAR SESIÓN"  // Agregar el botón de logout al final
     };
     
     // Controladores
@@ -130,10 +136,6 @@ public class MainWindow extends JFrame {
      * Crea los componentes de la ventana principal.
      */
     private void createComponents() {
-        // Crear barra de menú primero
-        menuBar = new MenuBar();
-        setJMenuBar(menuBar.getMenuBar());
-
         // Crear panel de botones antes que el panel de juego
         createButtonPanel();
 
@@ -238,14 +240,14 @@ public class MainWindow extends JFrame {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
-
+    
         gameButtons = new JButton[BUTTON_LABELS.length];
-
+    
         for (int i = 0; i < BUTTON_LABELS.length; i++) {
             gameButtons[i] = createStyledButton(BUTTON_LABELS[i]);
             buttonPanel.add(Box.createVerticalStrut(5));
             buttonPanel.add(gameButtons[i]);
-
+    
             if (i != 0 && i != 7) {
                 gameButtons[i].setEnabled(false);
             }
@@ -268,9 +270,15 @@ public class MainWindow extends JFrame {
      * Inicia el temporizador.
      */
     public void startTimer() {
+        if (timer != null) {
+            timer.stop();
+        }
+        
         timer = new Timer(1000, e -> {
             timerController.actualizarTiempo();
-            setTimer();
+            updateTimer(timerController.getHoursPassed(), 
+                        timerController.getMinutesPassed(), 
+                        timerController.getSecondsPassed());
         });
         timer.start();
     }
@@ -308,7 +316,24 @@ public class MainWindow extends JFrame {
      * @param tcGuardado El controlador del temporizador guardado.
      */
     public void resumeTimer(TimerController tcGuardado) {
-        timerDisplay.updateTime(tcGuardado.getHoursPassed(), tcGuardado.getMinutesPassed(), tcGuardado.getSecondsPassed());
+        // Detener el timer actual si existe
+        if (timer != null) {
+            timer.stop();
+        }
+        
+        // Actualizar valores del timer
+        timerController.setHoursPassed(tcGuardado.getHoursPassed());
+        timerController.setMinutesPassed(tcGuardado.getMinutesPassed());
+        timerController.setSecondsPassed(tcGuardado.getSecondsPassed());
+        timerController.setCronometro(tcGuardado.getCronometro());
+        
+        // Actualizar display
+        timerDisplay.updateTime(tcGuardado.getHoursPassed(), 
+                                tcGuardado.getMinutesPassed(), 
+                                tcGuardado.getSecondsPassed());
+        
+        // Reiniciar el timer
+        startTimer();
     }
 
     /**
@@ -360,33 +385,7 @@ public class MainWindow extends JFrame {
             }
         });
         
-        // Configurar listeners de la barra de menú
-        setupMenuListeners();
-        
         // Los listeners de los botones se configurarán cuando se inicialicen los controladores
-    }
-
-    /**
-     * Configura los listeners de la barra de menú.
-     */
-    private void setupMenuListeners() {
-        menuBar.addConfigListener(e -> {
-            if (configController != null) {
-                configController.showConfigDialog();
-            }
-        });
-        
-        menuBar.addPlayListener(e -> {
-            if (gameController != null) {
-                gameController.startGame();
-            }
-        });
-        
-        menuBar.addTop10Listener(e -> {
-            if (scoreController != null) {
-                scoreController.showTop10();
-            }
-        });
     }
 
     /**
@@ -406,6 +405,7 @@ public class MainWindow extends JFrame {
         gameButtons[8].addActionListener(e -> scoreController.showTop10());       // TOP 10
         gameButtons[9].addActionListener(e -> showHelp());                        // AYUDA
         gameButtons[10].addActionListener(e -> showAbout());                      // ACERCA DE
+        gameButtons[11].addActionListener(e -> handleLogout());                   // Listener para logout
     }
 
     /**
@@ -635,4 +635,47 @@ public class MainWindow extends JFrame {
         );
     }
 
+    /**
+     * Maneja el evento de logout.
+     */
+    private void handleLogout() {
+        if (gameController != null && gameController.isGameStarted()) {
+            int option = JOptionPane.showConfirmDialog(this,
+                "¿Desea guardar el juego actual antes de cerrar sesión?",
+                "Guardar Juego",
+                JOptionPane.YES_NO_CANCEL_OPTION);
+                
+            if (option == JOptionPane.CANCEL_OPTION) {
+                return;
+            } else if (option == JOptionPane.YES_OPTION) {
+                gameController.saveGame();
+            }
+        }
+
+        // Detener timers y limpiar estado
+        stopTimer();
+        gameBoard.reset();
+        digitPanel.setSelectedDigit(0);
+        
+        // Mostrar diálogo de login
+        PlayerLoginDialog loginDialog = new PlayerLoginDialog(this, PlayerManager.getInstance());
+        loginDialog.setVisible(true);
+
+        if (loginDialog.isLoggedIn() || !loginDialog.getPlayerName().isEmpty()) {
+            playerName = loginDialog.getPlayerName();
+            setPlayerName(playerName);
+            enableGameButtons(false);
+            gameBoard.setPlayable(false);
+        }
+    }
+
+    /**
+     * Reinicializa el juego.
+     */
+    private void restartGame() {
+        // Reinicializar controladores y estado del juego
+        initializeControllers(configController, gameController, scoreController, timerController);
+        enableGameButtons(false);
+        getGameBoard().setPlayable(false);
+    }
 }

@@ -54,6 +54,11 @@ public class InputValidator {
         if (name == null) {
             return "El nombre no puede ser null";
         }
+
+        // No puede ser el nombre de un jugador invitado
+        if (name.equals("Invitado")) {
+            return "El nombre de jugador invitado no es válido";
+        }
         
         // Nombre vacío está permitido (jugador incógnito)
         if (name.isEmpty()) {

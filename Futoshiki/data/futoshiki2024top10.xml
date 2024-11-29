@@ -19,6 +19,9 @@
     </nivel>
     <nivel dificultad="Dificil">
         <score horas="0" jugador="Luis" minutos="0" segundos="15" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="15" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="23" tamano="3"/>
+        <score horas="0" jugador="Invitado" minutos="0" segundos="38" tamano="3"/>
         <score horas="0" jugador="Invitado" minutos="1" segundos="2" tamano="3"/>
     </nivel>
 </top10>

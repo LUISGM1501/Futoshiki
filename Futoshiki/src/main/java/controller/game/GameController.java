@@ -6,12 +6,15 @@ import java.util.Random;
 import java.util.Stack;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
+import org.w3c.dom.Element;
+
+import controller.config.ConfigurationController;
 import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.GameState;
 import model.game.Move;
+import persistence.ConfigurationManager;
 import persistence.GameSaver;
 import persistence.Top10Manager;
 import persistence.XMLHandler;
@@ -19,9 +22,6 @@ import persistence.XMLHandler.GameData;
 import util.constants.MessageConstants;
 import view.dialogs.GameSetupDialog;
 import view.game.MainWindow;
-import persistence.ConfigurationManager;
-import controller.config.ConfigurationController;
-
 /**
  * Controlador del juego Futoshiki.
  */
@@ -242,20 +242,20 @@ public class GameController {
      * @param col Columna de la celda.
      */
     public void handleCellClick(int row, int col) {
-        if (!isGameStarted) {
-            return;
-        }
+        System.out.println("\nGameController - handleCellClick iniciado:");
+        System.out.println("  Posición: " + row + "," + col);
+        System.out.println("  isGameStarted: " + isGameStarted);
+        System.out.println("  selectedDigit: " + selectedDigit);
+        System.out.println("  eraserSelected: " + view.getDigitPanel().isEraserSelected());
 
-        if (selectedDigit == 0) {
-            JOptionPane.showMessageDialog(view,
-                MessageConstants.ERROR_NO_DIGIT_SELECTED,
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        if (!isGameStarted) return;
 
         FutoshikiBoard board = gameState.getBoard();
+        System.out.println("  Valor actual en celda: " + board.getValue(row, col));
+        System.out.println("  Es celda constante: " + board.isConstant(row, col));
+        System.out.println("  Borrador seleccionado: " + view.getDigitPanel().isEraserSelected());
         
+        // Verificar si es celda constante
         if (board.isConstant(row, col)) {
             JOptionPane.showMessageDialog(view,
                 MessageConstants.ERROR_CONSTANT_CELL,
@@ -264,8 +264,38 @@ public class GameController {
             return;
         }
 
+        // Manejar borrado
+        boolean isErasing = view.getDigitPanel().isEraserSelected();
+        System.out.println("Modo borrador: " + isErasing);
+        
+        if (isErasing) {
+            int currentValue = board.getValue(row, col);
+            if (currentValue > 0) {
+                moves.push(new Move(row, col, 0, currentValue));
+                redoMoves.clear();
+                board.clearCell(row, col);
+                updateGameBoard();
+                System.out.println("Celda borrada en posición: " + row + "," + col);
+            }
+            return;
+        }
+
+        System.out.println("GameController - Procesando jugada normal");
+        // Si no hay dígito seleccionado y no es borrado, mostrar error
+        if (selectedDigit == 0) {
+            JOptionPane.showMessageDialog(view,
+                MessageConstants.ERROR_NO_DIGIT_SELECTED,
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Manejar colocación de dígito
         int previousValue = board.getValue(row, col);
-        if (board.setCellValue(row, col, selectedDigit)) {
+        String error = validateMove(row, col, selectedDigit);
+        
+        if (error == null) {
+            board.setCellValue(row, col, selectedDigit);
             moves.push(new Move(row, col, selectedDigit, previousValue));
             redoMoves.clear();
             updateGameBoard();
@@ -274,9 +304,8 @@ public class GameController {
                 handleGameCompletion();
             }
         } else {
-            // La jugada no es válida, mostrar el error específico
-            String error = validateMove(row, col, selectedDigit);
             JOptionPane.showMessageDialog(view, error, "Error", JOptionPane.ERROR_MESSAGE);
+            view.getGameBoard().showError(row, col);
         }
     }
 
@@ -286,7 +315,7 @@ public class GameController {
      * @param row Fila de la celda.
      * @param col Columna de la celda.
      * @param value Valor a colocar en la celda.
-     * @return Mensaje de error si la jugada no es válida, de lo contrario "JUGADA NO VÁLIDA".
+     * @return Mensaje de error si la jugada no es válida, de lo contrario null.
      */
     private String validateMove(int row, int col, int value) {
         FutoshikiBoard board = gameState.getBoard();
@@ -305,39 +334,51 @@ public class GameController {
             }
         }
         
-        // Validar desigualdades
+        // Validar desigualdades a la derecha
         String rightIneq = board.getRightInequality(row, col);
-        String bottomIneq = board.getBottomInequality(row, col);
-        
         if (!rightIneq.equals(" ")) {
-            if (col < board.getSize() - 1) {
-                int rightValue = board.getValue(row, col + 1);
-                if (rightValue != 0) {
-                    if (rightIneq.equals(">") && value <= rightValue) {
+            int rightValue = board.getValue(row, col + 1);
+            if (rightValue != 0) {
+                if (rightIneq.equals(">") && value <= rightValue) {
+                    return MessageConstants.ERROR_GREATER_CONSTRAINT;
+                }
+                if (rightIneq.equals("<") && value >= rightValue) {
+                    return MessageConstants.ERROR_LESSER_CONSTRAINT;
+                }
+            }
+        }
+        
+        // Validar desigualdades a la izquierda
+        if (col > 0) {
+            String leftIneq = board.getRightInequality(row, col - 1);
+            if (!leftIneq.equals(" ")) {
+                int leftValue = board.getValue(row, col - 1);
+                if (leftValue != 0) {
+                    if (leftIneq.equals(">") && leftValue <= value) {
                         return MessageConstants.ERROR_GREATER_CONSTRAINT;
                     }
-                    if (rightIneq.equals("<") && value >= rightValue) {
+                    if (leftIneq.equals("<") && leftValue >= value) {
                         return MessageConstants.ERROR_LESSER_CONSTRAINT;
                     }
                 }
             }
         }
         
+        // Validar desigualdades abajo
+        String bottomIneq = board.getBottomInequality(row, col);
         if (!bottomIneq.equals(" ")) {
-            if (row < board.getSize() - 1) {
-                int bottomValue = board.getValue(row + 1, col);
-                if (bottomValue != 0) {
-                    if (bottomIneq.equals("v") && value <= bottomValue) {
-                        return MessageConstants.ERROR_GREATER_CONSTRAINT;
-                    }
-                    if (bottomIneq.equals("^") && value >= bottomValue) {
-                        return MessageConstants.ERROR_LESSER_CONSTRAINT;
-                    }
+            int bottomValue = board.getValue(row + 1, col);
+            if (bottomValue != 0) {
+                if (bottomIneq.equals("v") && value <= bottomValue) {
+                    return MessageConstants.ERROR_GREATER_CONSTRAINT;
+                }
+                if (bottomIneq.equals("^") && value >= bottomValue) {
+                    return MessageConstants.ERROR_LESSER_CONSTRAINT;
                 }
             }
         }
         
-        return "JUGADA NO VÁLIDA";
+        return null;
     }
 
     /**
@@ -423,7 +464,8 @@ public class GameController {
         if (!isGameStarted) {
             return;
         }
-        boolean saved = GameSaver.saveGame(gameState, view.getPlayerName(), config);
+
+        boolean saved = GameSaver.saveGame(gameState, view.getPlayerName(), config, view.getTimer());
         if (saved) {
             JOptionPane.showMessageDialog(view,
                 "Juego guardado exitosamente",
@@ -447,16 +489,47 @@ public class GameController {
         
         GameState savedGame = GameSaver.loadGame(view.getPlayerName());
         if (savedGame != null) {
+            // Verificar que el tamaño coincide con la configuración actual
+            if (savedGame.getBoard().getSize() != config.getGridSize()) {
+                JOptionPane.showMessageDialog(view,
+                    "El juego guardado es de tamaño " + savedGame.getBoard().getSize() + "x" + 
+                    savedGame.getBoard().getSize() + " pero la configuración actual es de " + 
+                    config.getGridSize() + "x" + config.getGridSize() + ".\n" +
+                    "Por favor, ajuste el tamaño en la configuración antes de cargar el juego.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             this.gameState = savedGame;
             view.setLevel(savedGame.getDifficulty());
+            view.getGameBoard().updateBoard(gameState.getBoard());
+            
+            // Obtener los valores guardados del timer desde el XML
+            Element timerElement = savedGame.getTimerElement();
+            if (timerElement != null) {
+                int hours = Integer.parseInt(timerElement.getAttribute("hours"));
+                int minutes = Integer.parseInt(timerElement.getAttribute("minutes"));
+                int seconds = Integer.parseInt(timerElement.getAttribute("seconds"));
+                String timerType = timerElement.getAttribute("type");
+                
+                // Actualizar el timer en la vista
+                view.getTimer().setHoursPassed(hours);
+                view.getTimer().setMinutesPassed(minutes);
+                view.getTimer().setSecondsPassed(seconds);
+                view.getTimer().setCronometro(timerType);
+                
+                // Actualizar el display del timer
+                view.updateTimer(hours, minutes, seconds);
+                view.startTimer(); // Esto iniciará el timer desde los valores restaurados
+            }
+            
             isGameStarted = true;
-            updateGameBoard();
             view.enableGameButtons(true);
             view.getGameBoard().setPlayable(true);
-            view.startTimer();
         } else {
             JOptionPane.showMessageDialog(view,
-                "No se encontró ningún juego guardado",
+                "No se encontró ningún juego guardado para " + view.getPlayerName(),
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
         }

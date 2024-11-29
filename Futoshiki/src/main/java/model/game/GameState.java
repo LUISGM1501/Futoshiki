@@ -1,6 +1,7 @@
 package model.game;
 
 import java.util.Stack;
+import org.w3c.dom.Element;
 
 public class GameState {
     private FutoshikiBoard board;
@@ -9,6 +10,7 @@ public class GameState {
     private Stack<Move> undoneMoves;   // Jugadas deshechas
     private boolean isGameStarted;
     private String config;
+    private Element timerElement;
 
     /**
      * Constructor de la clase GameState.
@@ -70,5 +72,13 @@ public class GameState {
      */
     public String getConfig() {
         return config;
+    }
+
+    public Element getTimerElement() {
+        return timerElement;
+    }
+
+    public void setTimerElement(Element timerElement) {
+        this.timerElement = timerElement;
     }
 }

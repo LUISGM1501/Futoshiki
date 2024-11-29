@@ -1,24 +1,18 @@
 package persistence;
 
 import java.io.File;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+import org.w3c.dom.*;
+import java.util.ArrayList;
+import java.util.List;
+import model.game.*;
 import model.config.Configuration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import model.game.FutoshikiBoard;
-import model.game.GameState;
 import util.constants.FileConstants;
 
+import controller.timer.TimerController;
 
 public class GameSaver {
     
@@ -28,40 +22,77 @@ public class GameSaver {
      * @param gameState El estado del juego a guardar.
      * @param playerName El nombre del jugador.
      * @param config La configuración del juego.
+     * @param timerController El controlador del temporizador.
      * @return true si se guardó correctamente, false en caso contrario.
      */
-    public static boolean saveGame(GameState gameState, String playerName, Configuration config) {
+    public static boolean saveGame(GameState gameState, String playerName, 
+                                 Configuration config, TimerController timerController) {
         try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.newDocument();
+            // Cargar documento existente o crear uno nuevo
+            Document doc;
+            Element rootElement;
+            File file = new File(FileConstants.CURRENT_GAME_FILE);
             
-            // Elemento raíz
-            Element rootElement = doc.createElement("savedGame");
-            doc.appendChild(rootElement);
+            if (file.exists()) {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                doc = dBuilder.parse(file);
+                rootElement = doc.getDocumentElement();
+                
+                // Buscar y eliminar juego anterior del mismo jugador si existe
+                NodeList savedGames = doc.getElementsByTagName("game");
+                for (int i = 0; i < savedGames.getLength(); i++) {
+                    Element gameElement = (Element) savedGames.item(i);
+                    String savedPlayer = gameElement.getElementsByTagName("player").item(0).getTextContent();
+                    if (savedPlayer.equals(playerName)) {
+                        rootElement.removeChild(gameElement);
+                        break;
+                    }
+                }
+            } else {
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                doc = docBuilder.newDocument();
+                rootElement = doc.createElement("savedGames");
+                doc.appendChild(rootElement);
+            }
+            
+            // Crear nuevo elemento de juego
+            Element gameElement = doc.createElement("game");
             
             // Información del jugador
             Element playerElement = doc.createElement("player");
             playerElement.setTextContent(playerName);
-            rootElement.appendChild(playerElement);
+            gameElement.appendChild(playerElement);
             
-            // Información del juego
-            Element gameElement = doc.createElement("gameState");
-            // Dificultad
+            // Timer info
+            Element timerElement = doc.createElement("timer");
+            timerElement.setAttribute("type", timerController.getCronometro());
+            timerElement.setAttribute("hours", String.valueOf(timerController.getHoursPassed()));
+            timerElement.setAttribute("minutes", String.valueOf(timerController.getMinutesPassed()));
+            timerElement.setAttribute("seconds", String.valueOf(timerController.getSecondsPassed()));
+            timerElement.setAttribute("expired", String.valueOf(timerController.isTimerExpired()));
+            gameElement.appendChild(timerElement);
+            
+            // Configuración
+            Element configElement = doc.createElement("configuration");
+            configElement.setAttribute("gridSize", String.valueOf(config.getGridSize()));
+            configElement.setAttribute("difficulty", config.getDifficulty());
+            configElement.setAttribute("multiLevel", String.valueOf(config.isMultiLevel()));
+            configElement.setAttribute("panelPosition", config.getDigitPanelPosition());
+            gameElement.appendChild(configElement);
+            
+            // Estado del juego
+            Element stateElement = doc.createElement("gameState");
             Element difficultyElement = doc.createElement("difficulty");
             difficultyElement.setTextContent(gameState.getDifficulty());
-            gameElement.appendChild(difficultyElement);
-            //Config
-            Element configElement = doc.createElement("config");
-            configElement.setTextContent(config.toString());
-            gameElement.appendChild(configElement);
+            stateElement.appendChild(difficultyElement);
             
             // Tablero
             Element boardElement = doc.createElement("board");
             FutoshikiBoard board = gameState.getBoard();
             boardElement.setAttribute("size", String.valueOf(board.getSize()));
-
-            // Guardar estado de cada celda
+            
             for (int i = 0; i < board.getSize(); i++) {
                 for (int j = 0; j < board.getSize(); j++) {
                     Element cellElement = doc.createElement("cell");
@@ -70,7 +101,6 @@ public class GameSaver {
                     cellElement.setAttribute("value", String.valueOf(board.getValue(i, j)));
                     cellElement.setAttribute("constant", String.valueOf(board.isConstant(i, j)));
                     
-                    // Desigualdades
                     String rightIneq = board.getRightInequality(i, j);
                     String bottomIneq = board.getBottomInequality(i, j);
                     
@@ -85,21 +115,25 @@ public class GameSaver {
                 }
             }
             
-            gameElement.appendChild(boardElement);
+            stateElement.appendChild(boardElement);
+            gameElement.appendChild(stateElement);
+            
+            // Agregar el nuevo juego al documento
             rootElement.appendChild(gameElement);
             
-            // Guardar el documento XML
+            // Guardar el documento
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
             
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(FileConstants.CURRENT_GAME_FILE));
+            StreamResult result = new StreamResult(file);
             transformer.transform(source, result);
             
             return true;
-            
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -124,57 +158,85 @@ public class GameSaver {
             Document doc = dBuilder.parse(file);
             doc.getDocumentElement().normalize();
             
-            // Verificar que el juego pertenece al jugador
-            NodeList playerNodes = doc.getElementsByTagName("player");
-            /*
-            if (playerNodes.getLength() > 0) {
-                String savedPlayer = playerNodes.item(0).getTextContent();
-                if (!savedPlayer.equals(playerName)) {
-                    return null;
-                }
-            }
-            */
-            // Cargar estado del juego
-            Element gameElement = (Element) doc.getElementsByTagName("gameState").item(0);
-            String difficulty = gameElement.getElementsByTagName("difficulty").item(0).getTextContent();
-            String config = gameElement.getElementsByTagName("config").item(0).getTextContent();
-
-
-
-            // Cargar tablero
-            Element boardElement = (Element) gameElement.getElementsByTagName("board").item(0);
-            int size = Integer.parseInt(boardElement.getAttribute("size"));
-            FutoshikiBoard board = new FutoshikiBoard(size);
-            
-            // Cargar celdas
-            NodeList cells = boardElement.getElementsByTagName("cell");
-            for (int i = 0; i < cells.getLength(); i++) {
-                Element cell = (Element) cells.item(i);
-                int row = Integer.parseInt(cell.getAttribute("row"));
-                int col = Integer.parseInt(cell.getAttribute("col"));
-                int value = Integer.parseInt(cell.getAttribute("value"));
-                boolean constant = Boolean.parseBoolean(cell.getAttribute("constant"));
+            // Buscar el juego del jugador específico
+            NodeList gamesList = doc.getElementsByTagName("game");
+            for (int i = 0; i < gamesList.getLength(); i++) {
+                Element gameElement = (Element) gamesList.item(i);
+                String savedPlayer = gameElement.getElementsByTagName("player").item(0).getTextContent();
                 
-                if (constant) {
-                    board.setConstant(row, col, value);
-                } else if (value > 0) {
-                    board.setCellValue(row, col, value);
-                }
-                
-                // Cargar desigualdades
-                if (cell.hasAttribute("rightInequality")) {
-                    board.setInequality("maf", row, col);
-                }
-                if (cell.hasAttribute("bottomInequality")) {
-                    board.setInequality("mac", row, col);
+                if (savedPlayer.equals(playerName)) {
+                    // Cargar el estado del juego
+                    Element stateElement = (Element) gameElement.getElementsByTagName("gameState").item(0);
+                    String difficulty = stateElement.getElementsByTagName("difficulty").item(0).getTextContent();
+                    
+                    Element boardElement = (Element) stateElement.getElementsByTagName("board").item(0);
+                    int size = Integer.parseInt(boardElement.getAttribute("size"));
+                    FutoshikiBoard board = new FutoshikiBoard(size);
+                    
+                    NodeList cells = boardElement.getElementsByTagName("cell");
+                    for (int j = 0; j < cells.getLength(); j++) {
+                        Element cell = (Element) cells.item(j);
+                        int row = Integer.parseInt(cell.getAttribute("row"));
+                        int col = Integer.parseInt(cell.getAttribute("col"));
+                        int value = Integer.parseInt(cell.getAttribute("value"));
+                        boolean constant = Boolean.parseBoolean(cell.getAttribute("constant"));
+                        
+                        if (constant) {
+                            board.setConstant(row, col, value);
+                        } else if (value > 0) {
+                            board.setCellValue(row, col, value);
+                        }
+                        
+                        if (cell.hasAttribute("rightInequality")) {
+                            board.setInequality("maf", row, col);
+                        }
+                        if (cell.hasAttribute("bottomInequality")) {
+                            board.setInequality("mac", row, col);
+                        }
+                    }
+                    
+                    return new GameState(board, difficulty, "");
                 }
             }
             
-            return new GameState(board, difficulty, config);
+            return null;
             
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+    
+    /**
+     * Verifica si hay un juego guardado para el jugador.
+     * 
+     * @param playerName El nombre del jugador.
+     * @return true si hay un juego guardado, false en caso contrario.
+     */
+    public static boolean hasGameSaved(String playerName) {
+        try {
+            File file = new File(FileConstants.CURRENT_GAME_FILE);
+            if (!file.exists()) {
+                return false;
+            }
+            
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(file);
+            
+            NodeList games = doc.getElementsByTagName("game");
+            for (int i = 0; i < games.getLength(); i++) {
+                Element gameElement = (Element) games.item(i);
+                String savedPlayer = gameElement.getElementsByTagName("player").item(0).getTextContent();
+                if (savedPlayer.equals(playerName)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

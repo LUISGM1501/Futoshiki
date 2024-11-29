@@ -12,13 +12,14 @@ import util.validators.InputValidator;
 public class PlayerManager {
     private Map<String, Player> players;
     private Player currentPlayer;
-    
+    private static PlayerManager instance;
     /**
      * Constructor de la clase PlayerManager.
      * Carga jugadores desde XML al inicializar.
      */
     public PlayerManager() {
         players = XMLPlayerManager.loadPlayers();
+        instance = this;
     }
     
     /**
@@ -191,5 +192,24 @@ public class PlayerManager {
         }
         Collections.sort(allScores);
         return allScores;
+    }
+
+    /**
+     * Obtiene la instancia del PlayerManager.
+     * 
+     * @return La instancia del PlayerManager.
+     */
+    public static PlayerManager getInstance() {
+        return instance;
+    }
+
+    /**
+     * Verifica si un jugador está registrado.
+     * 
+     * @param playerName El nombre del jugador.
+     * @return true si el jugador está registrado, false en caso contrario.
+     */
+    public boolean isRegisteredPlayer(String playerName) {
+        return players.containsKey(playerName);
     }
 }

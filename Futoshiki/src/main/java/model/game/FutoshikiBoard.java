@@ -93,6 +93,7 @@ public class FutoshikiBoard {
         // Validar fila
         for (int i = 0; i < size; i++) {
             if (i != col && cells[row][i].getValor() == value) {
+                cells[row][col].setValor(value); // Temporalmente para mostrar el error
                 return false;
             }
         }
@@ -100,15 +101,14 @@ public class FutoshikiBoard {
         // Validar columna
         for (int i = 0; i < size; i++) {
             if (i != row && cells[i][col].getValor() == value) {
+                cells[row][col].setValor(value); // Temporalmente para mostrar el error
                 return false;
             }
         }
 
         // Validar desigualdades
         cells[row][col].setValor(value);
-        boolean isValid = validateInequalities(row, col);
-        
-        if (!isValid) {
+        if (!validateInequalities(row, col)) {
             cells[row][col].setValor(0); // Revertir si no es válido
             return false;
         }
@@ -126,32 +126,92 @@ public class FutoshikiBoard {
     private boolean validateInequalities(int row, int col) {
         // Validar con celda a la derecha
         if (col < size - 1) {
-            if (!cells[row][col].revisarDesigualdadesDer(cells[row][col + 1])) {
+            if (!validateInequalityRight(row, col)) {
                 return false;
             }
         }
 
         // Validar con celda a la izquierda
         if (col > 0) {
-            if (!cells[row][col - 1].revisarDesigualdadesDer(cells[row][col])) {
+            if (!validateInequalityLeft(row, col)) {
                 return false;
             }
         }
 
         // Validar con celda abajo
         if (row < size - 1) {
-            if (!cells[row][col].revisarDesigualdadesAba(cells[row + 1][col])) {
+            if (!validateInequalityBottom(row, col)) {
                 return false;
             }
         }
 
         // Validar con celda arriba
         if (row > 0) {
-            if (!cells[row - 1][col].revisarDesigualdadesAba(cells[row][col])) {
+            if (!validateInequalityTop(row, col)) {
                 return false;
             }
         }
 
+        return true;
+    }
+
+    private boolean validateInequalityRight(int row, int col) {
+        String inequality = cells[row][col].getDesDer();
+        int rightValue = cells[row][col + 1].getValor();
+        
+        if (rightValue == 0) return true;
+        
+        if (inequality.equals(">") && cells[row][col].getValor() <= rightValue) {
+            return false;
+        }
+        if (inequality.equals("<") && cells[row][col].getValor() >= rightValue) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateInequalityLeft(int row, int col) {
+        String inequality = cells[row][col - 1].getDesDer();
+        int leftValue = cells[row][col - 1].getValor();
+        
+        if (leftValue == 0) return true;
+        
+        if (inequality.equals(">") && leftValue <= cells[row][col].getValor()) {
+            return false;
+        }
+        if (inequality.equals("<") && leftValue >= cells[row][col].getValor()) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateInequalityBottom(int row, int col) {
+        String inequality = cells[row][col].getDesAbajo();
+        int bottomValue = cells[row + 1][col].getValor();
+        
+        if (bottomValue == 0) return true;
+        
+        if (inequality.equals("v") && cells[row][col].getValor() <= bottomValue) {
+            return false;
+        }
+        if (inequality.equals("^") && cells[row][col].getValor() >= bottomValue) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateInequalityTop(int row, int col) {
+        String inequality = cells[row - 1][col].getDesAbajo();
+        int topValue = cells[row - 1][col].getValor();
+        
+        if (topValue == 0) return true;
+        
+        if (inequality.equals("v") && topValue <= cells[row][col].getValor()) {
+            return false;
+        }
+        if (inequality.equals("^") && topValue >= cells[row][col].getValor()) {
+            return false;
+        }
         return true;
     }
 

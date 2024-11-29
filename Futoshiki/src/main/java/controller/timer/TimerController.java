@@ -39,24 +39,29 @@ public class TimerController {
      * @param config La configuración que contiene los valores del temporizador.
      */
     public void setValores(Configuration config) {
-        secondsPassed = config.getTimerSeconds();
-        minutesPassed = config.getTimerMinutes();
-        hoursPassed = config.getTimerHours();
-        cronometro = config.getTimerType();
+        this.secondsPassed = config.getTimerSeconds();
+        this.minutesPassed = config.getTimerMinutes();
+        this.hoursPassed = config.getTimerHours();
+        this.cronometro = config.getTimerType();
         
         // Guardar valores originales
-        originalHours = hoursPassed;
-        originalMinutes = minutesPassed;
-        originalSeconds = secondsPassed;
+        this.originalHours = hoursPassed;
+        this.originalMinutes = minutesPassed;
+        this.originalSeconds = secondsPassed;
         
         // Resetear estado
-        timerExpired = false;
+        this.timerExpired = false;
     }
 
     /**
      * Actualiza el tiempo transcurrido basado en el tipo de cronómetro.
      */
     public void actualizarTiempo() {
+        // Asegurarnos de que cronometro no sea null
+        if (cronometro == null) {
+            cronometro = "Cronómetro"; // valor por defecto
+        }
+
         switch (cronometro) {
             case "Cronómetro":
                 incrementTime();
@@ -170,6 +175,7 @@ public class TimerController {
      */
     public void setSecondsPassed(int secondsPassed) {
         this.secondsPassed = secondsPassed;
+        this.originalSeconds = secondsPassed; // Mantener el valor original también
     }
 
     /**
@@ -179,6 +185,7 @@ public class TimerController {
      */
     public void setMinutesPassed(int minutesPassed) {
         this.minutesPassed = minutesPassed;
+        this.originalMinutes = minutesPassed; // Mantener el valor original también
     }
 
     /**
@@ -188,6 +195,7 @@ public class TimerController {
      */
     public void setHoursPassed(int hoursPassed) {
         this.hoursPassed = hoursPassed;
+        this.originalHours = hoursPassed; // Mantener el valor original también
     }
 
     /**
@@ -252,6 +260,4 @@ public class TimerController {
     public void setCronometro(String cronometro) {
         this.cronometro = cronometro;
     }
-
-
 }

@@ -1,13 +1,9 @@
 package view.game;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
 
 /**
  * Clase DigitPanel que representa un panel de botones numéricos y un botón de borrador.
@@ -18,6 +14,7 @@ public class DigitPanel extends JPanel {
     private int selectedDigit;
     private List<DigitSelectListener> digitListeners;
     private int maxDigits;
+    private volatile boolean eraserSelected;  // Hacer el estado volátil para asegurar visibilidad
 
     /**
      * Interfaz para escuchar la selección de dígitos.
@@ -35,10 +32,68 @@ public class DigitPanel extends JPanel {
      * Constructor de DigitPanel que inicializa el panel con un layout dinámico y componentes.
      */
     public DigitPanel() {
-        setLayout(new GridLayout(0, 1, 5, 5)); // Layout dinámico
+        setLayout(new BorderLayout(5, 5));
         digitListeners = new ArrayList<>();
         maxDigits = 5; // Valor por defecto
+        eraserSelected = false;
         initializeComponents();
+    }
+
+    /**
+     * Inicializa los componentes del panel.
+     */
+    private void initializeComponents() {
+        // Panel para los dígitos
+        JPanel digitsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        digitButtons = new JButton[maxDigits];
+        
+        for (int i = 0; i < maxDigits; i++) {
+            digitButtons[i] = createDigitButton(i + 1);
+            digitsPanel.add(digitButtons[i]);
+        }
+
+        // Crear el botón borrador con estilo
+        eraserButton = new JButton("Borrador ⌫");
+        eraserButton.setFont(new Font("Arial", Font.BOLD, 14));
+        eraserButton.setFocusPainted(false);
+        eraserButton.setPreferredSize(new Dimension(60, 40));
+        eraserButton.setBorder(BorderFactory.createLineBorder(Color.RED));
+
+        eraserButton.addActionListener(e -> {
+            System.out.println("DigitPanel - Botón borrador presionado");
+            toggleEraser();
+            System.out.println("DigitPanel - Estado después de toggle:");
+            System.out.println("  eraserSelected: " + eraserSelected);
+            System.out.println("  selectedDigit: " + selectedDigit);
+            notifyDigitSelected(-1);
+        });
+
+        // Organizar los componentes
+        add(digitsPanel, BorderLayout.CENTER);
+        add(eraserButton, BorderLayout.NORTH);
+    }
+
+    /**
+     * Crea un botón de dígito con el estilo y comportamiento adecuado.
+     * 
+     * @param digit El dígito para el botón.
+     * @return El botón de dígito creado.
+     */
+    private JButton createDigitButton(int digit) {
+        JButton button = new JButton(String.valueOf(digit));
+        button.setFont(new Font("Arial", Font.PLAIN, 14));
+        button.setFocusPainted(false);
+        button.setPreferredSize(new Dimension(60, 40));
+        
+        button.addActionListener(e -> {
+            System.out.println("Dígito " + digit + " seleccionado. Estado del borrador: " + eraserSelected);
+            if (!eraserSelected) {
+                setSelectedDigit(digit);
+                notifyDigitSelected(digit);
+            }
+        });
+        
+        return button;
     }
 
     /**
@@ -50,33 +105,51 @@ public class DigitPanel extends JPanel {
         System.out.println("Actualizando panel de dígitos a tamaño: " + size); // Debug
         if (this.maxDigits != size) {
             this.maxDigits = size;
-            removeAll(); // Eliminar todos los botones actuales
+            removeAll();
             
-            // Crear nuevo layout con el número correcto de filas
-            setLayout(new GridLayout(size + 1, 1, 5, 5)); // +1 para el botón de borrador
-            
-            // Reinicializar los botones con el nuevo tamaño
+            // Panel para los dígitos
+            JPanel digitsPanel = new JPanel(new GridLayout(size, 1, 5, 5));
             digitButtons = new JButton[size];
             
-            // Crear los botones con los números correctos
             for (int i = 0; i < size; i++) {
+                digitButtons[i] = createDigitButton(i + 1);
+                digitsPanel.add(digitButtons[i]);
+            }
+            
+            // Recrear el borrador
+            eraserButton = new JButton("Borrador ⌫");
+            eraserButton.setFont(new Font("Arial", Font.BOLD, 14));
+            eraserButton.setFocusPainted(false);
+            eraserButton.setPreferredSize(new Dimension(60, 40));
+            eraserButton.setBorder(BorderFactory.createLineBorder(Color.RED));
+
+            eraserButton.addActionListener(e -> {
+                System.out.println("DigitPanel - Botón borrador presionado");
+                toggleEraser();
+                System.out.println("DigitPanel - Estado después de toggle:");
+                System.out.println("  eraserSelected: " + eraserSelected);
+                System.out.println("  selectedDigit: " + selectedDigit);
+                notifyDigitSelected(-1);
+            });
+
+            // También necesitamos actualizar los botones de dígitos para que desactiven el borrador
+            for (int i = 0; i < maxDigits; i++) {
                 final int digit = i + 1;
-                digitButtons[i] = new JButton(String.valueOf(digit));
-                digitButtons[i].setPreferredSize(new Dimension(60, 40));
-                digitButtons[i].setFont(new Font("Arial", Font.PLAIN, 14));
                 digitButtons[i].addActionListener(e -> {
+                    // Desactivar borrador si estaba activo
+                    if (eraserSelected) {
+                        eraserSelected = false;
+                        eraserButton.setBackground(null);
+                    }
                     setSelectedDigit(digit);
                     notifyDigitSelected(digit);
                 });
-                add(digitButtons[i]);
             }
-            
-            // Agregar el botón de borrador
-            eraserButton = new JButton("⌫");
-            eraserButton.setPreferredSize(new Dimension(60, 40));
-            add(eraserButton);
 
-            // Forzar actualización del layout
+            // Organizar los componentes
+            add(digitsPanel, BorderLayout.CENTER);
+            add(eraserButton, BorderLayout.NORTH);
+
             revalidate();
             repaint();
             
@@ -85,49 +158,20 @@ public class DigitPanel extends JPanel {
     }
 
     /**
-     * Inicializa los componentes del panel.
-     */
-    private void initializeComponents() {
-        digitButtons = new JButton[maxDigits];
-        
-        // Crear botones de dígitos dinámicamente según el tamaño
-        for (int i = 0; i < maxDigits; i++) {
-            digitButtons[i] = new JButton(String.valueOf(i + 1));
-            final int digit = i + 1;
-            
-            // Configurar el estilo del botón
-            digitButtons[i].setFont(new Font("Arial", Font.PLAIN, 14));
-            digitButtons[i].setFocusPainted(false);
-            
-            digitButtons[i].addActionListener(e -> {
-                setSelectedDigit(digit);
-                notifyDigitSelected(digit);
-            });
-            add(digitButtons[i]);
-        }
-
-        // Agregar botón de borrador
-        eraserButton = new JButton("⌫");
-        eraserButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        eraserButton.setFocusPainted(false);
-        add(eraserButton);
-    }
-
-    /**
      * Establece el dígito seleccionado y actualiza la interfaz.
      * 
      * @param digit El dígito a seleccionar.
      */
     public void setSelectedDigit(int digit) {
-        // Desmarcar el botón previamente seleccionado
-        if (selectedDigit > 0 && selectedDigit <= maxDigits) {
-            digitButtons[selectedDigit - 1].setBackground(null);
-        }
-        
-        // Marcar el nuevo botón seleccionado
-        selectedDigit = digit;
-        if (digit > 0 && digit <= maxDigits) {
-            digitButtons[digit - 1].setBackground(java.awt.Color.GREEN);
+        // Solo cambiar dígito si el borrador no está activo
+        if (!eraserSelected) {
+            if (selectedDigit > 0 && selectedDigit <= maxDigits) {
+                digitButtons[selectedDigit - 1].setBackground(null);
+            }
+            selectedDigit = digit;
+            if (digit > 0 && digit <= maxDigits) {
+                digitButtons[digit - 1].setBackground(Color.GREEN);
+            }
         }
     }
 
@@ -167,5 +211,32 @@ public class DigitPanel extends JPanel {
         for (DigitSelectListener listener : digitListeners) {
             listener.onDigitSelected(digit);
         }
+    }
+
+    /**
+     * Verifica si el borrador está seleccionado.
+     * 
+     * @return true si el borrador está seleccionado, de lo contrario false.
+     */
+    public boolean isEraserSelected() {
+        return eraserSelected;
+    }
+
+    /**
+     * Cambia el estado del borrador y actualiza la interfaz.
+     */
+    private void toggleEraser() {
+        eraserSelected = !eraserSelected;
+        if (eraserSelected) {
+            // Desmarcar dígitos seleccionados
+            if (selectedDigit > 0 && selectedDigit <= maxDigits) {
+                digitButtons[selectedDigit - 1].setBackground(null);
+            }
+            selectedDigit = -1;
+            eraserButton.setBackground(Color.RED);
+        } else {
+            eraserButton.setBackground(null);
+        }
+        System.out.println("Estado del borrador cambiado a: " + eraserSelected);
     }
 }

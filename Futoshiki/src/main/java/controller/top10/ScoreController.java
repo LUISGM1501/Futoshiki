@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import model.game.GameScore;
+import model.player.PlayerManager;
 import persistence.Top10Manager;
 import view.game.ScoreboardView;
 
@@ -44,7 +45,8 @@ public class ScoreController {
     public boolean tryAddScore(String playerName, int hours, int minutes, int seconds, 
                              String difficulty, int gridSize) {
         // No permitir scores de jugadores invitados
-        if (playerName.equals("Invitado")) {
+        PlayerManager playerManager = PlayerManager.getInstance();
+        if (!playerManager.isRegisteredPlayer(playerName)) {
             JOptionPane.showMessageDialog(mainWindow,
                 "Los jugadores invitados no pueden guardar puntuaciones en el Top 10",
                 "Información",
