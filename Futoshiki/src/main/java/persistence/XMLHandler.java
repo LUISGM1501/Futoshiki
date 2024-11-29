@@ -20,7 +20,11 @@ import util.constants.FileConstants;
 
 public class XMLHandler {
     
-    // Carga las partidas desde el archivo XML
+    /**
+     * Carga las partidas desde el archivo XML.
+     * 
+     * @return Un mapa que asocia el nivel de dificultad con una lista de datos de juego.
+     */
     public static Map<String, List<GameData>> loadGames() {
         Map<String, List<GameData>> games = new HashMap<>();
         games.put("Facil", new ArrayList<>());
@@ -127,6 +131,14 @@ public class XMLHandler {
 
 
 
+    
+    /**
+     * Parsea los datos de una partida desde un elemento XML.
+     * 
+     * @param partida El elemento XML que representa una partida.
+     * @return Un objeto GameData con los datos de la partida.
+     */
+
     private static GameData parseGameData(Element partida) {
         String nivel = getElementContent(partida, "nivel");
         int tamano = Integer.parseInt(getElementContent(partida, "cuadricula"));
@@ -155,6 +167,13 @@ public class XMLHandler {
         return new GameData(nivel, tamano, desigualdades, constantes);
     }
     
+    /**
+     * Obtiene el contenido de texto de un elemento hijo especificado.
+     * 
+     * @param parent El elemento padre.
+     * @param tagName El nombre de la etiqueta del elemento hijo.
+     * @return El contenido de texto del elemento hijo, o una cadena vacía si no se encuentra.
+     */
     private static String getElementContent(Element parent, String tagName) {
         NodeList nodes = parent.getElementsByTagName(tagName);
         if (nodes.getLength() > 0) {
@@ -170,6 +189,14 @@ public class XMLHandler {
         private List<Inequality> desigualdades;
         private Map<String, Integer> constantes;
         
+        /**
+         * Constructor para crear una instancia de GameData.
+         * 
+         * @param nivel El nivel de dificultad del juego.
+         * @param tamano El tamaño de la cuadrícula del juego.
+         * @param desigualdades La lista de desigualdades en el juego.
+         * @param constantes Un mapa de constantes en el juego, indexado por "fila,columna".
+         */
         public GameData(String nivel, int tamano, List<Inequality> desigualdades, 
                        Map<String, Integer> constantes) {
             this.nivel = nivel;

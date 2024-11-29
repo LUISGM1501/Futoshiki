@@ -25,6 +25,11 @@ import util.constants.GameConstants;
 public class Top10Manager {
     private Map<String, List<GameScore>> scoresByLevel;
     private static Top10Manager instance;
+
+    /**
+     * Constructor de Top10Manager.
+     * Inicializa el mapa de scores por nivel y carga los scores desde el archivo.
+     */
     public Top10Manager() {
         scoresByLevel = new HashMap<>();
         scoresByLevel.put(GameConstants.LEVEL_EASY, new ArrayList<>());
@@ -33,8 +38,12 @@ public class Top10Manager {
         loadScores();
     }
     
-    // Intenta agregar un nuevo score al Top 10
-    // @return true si el score fue agregado (entró al top 10)
+    /**
+     * Intenta agregar un nuevo score al Top 10.
+     * 
+     * @param score El score a agregar.
+     * @return true si el score fue agregado (entró al top 10), false en caso contrario.
+     */
     public boolean addScore(GameScore score) {
         System.out.println("Intentando agregar score al Top 10:");
         System.out.println("Jugador: " + score.getPlayerName());
@@ -70,12 +79,19 @@ public class Top10Manager {
         return added;
     }
     
-    // Obtiene los scores de un nivel específico
+    /**
+     * Obtiene los scores de un nivel específico.
+     * 
+     * @param level El nivel de dificultad.
+     * @return Una lista de scores para el nivel especificado.
+     */
     public List<GameScore> getScoresByLevel(String level) {
         return new ArrayList<>(scoresByLevel.get(level));
     }
     
-    // Carga los scores desde el archivo
+    /**
+     * Carga los scores desde el archivo.
+     */
     private void loadScores() {
         try {
             File file = new File(FileConstants.TOP10_FILE);
@@ -115,7 +131,9 @@ public class Top10Manager {
         }
     }
     
-    // Guarda los scores en el archivo
+    /**
+     * Guarda los scores en el archivo.
+     */
     private void saveScores() {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -160,12 +178,22 @@ public class Top10Manager {
         }
     }
     
-    // Ordena la lista de scores por tiempo (menor a mayor)
+    /**
+     * Ordena la lista de scores por tiempo (menor a mayor).
+     * 
+     * @param scores La lista de scores a ordenar.
+     */
     private void sortScores(List<GameScore> scores) {
         Collections.sort(scores);
     }
     
-    // Verifica si un tiempo calificaría para el Top 10
+    /**
+     * Verifica si un tiempo calificaría para el Top 10.
+     * 
+     * @param level El nivel de dificultad.
+     * @param totalSeconds El tiempo total en segundos.
+     * @return true si el tiempo calificaría para el Top 10, false en caso contrario.
+     */
     public boolean wouldQualifyForTop10(String level, int totalSeconds) {
         System.out.println("Verificando calificación para Top 10:");
         System.out.println("Nivel: " + level);
@@ -187,6 +215,11 @@ public class Top10Manager {
         return totalSeconds < lastScoreSeconds;
     }
 
+    /**
+     * Obtiene la instancia única de Top10Manager.
+     * 
+     * @return La instancia de Top10Manager.
+     */
     public static Top10Manager getInstance() {
         if (instance == null) {
             instance = new Top10Manager();

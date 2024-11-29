@@ -23,6 +23,9 @@ import util.constants.GameConstants;
 import model.game.Celda;
 import model.game.FutoshikiBoard;
 
+/**
+ * Clase GameBoard que representa el tablero del juego Futoshiki.
+ */
 public class GameBoard extends JPanel {
     // Constantes para estilo
     private static final Color BACKGROUND_COLOR = new Color(245, 245, 245);
@@ -30,10 +33,10 @@ public class GameBoard extends JPanel {
     private static final Color CELL_BORDER = new Color(200, 200, 200);
     private static final Color CONSTANT_COLOR = new Color(0, 102, 204);
     private static final Color ERROR_COLOR = new Color(255, 102, 102);
-    private static final int CELL_SIZE = 60;
     private static final int INEQUALITY_SIZE = 20;
     
     private int size;
+    private int cellSize;
     private JPanel[][] cellPanels;
     private JButton[][] cellButtons;
     private JLabel[][] rightLabels;
@@ -42,17 +45,28 @@ public class GameBoard extends JPanel {
     private List<CellClickListener> listeners;
     private Point lastErrorCell;
 
+    /**
+     * Constructor de GameBoard.
+     * 
+     * @param size El tamaño del tablero.
+     */
     public GameBoard(int size) {
         this.size = size;
         this.isPlayable = false;
         this.listeners = new ArrayList<>();
         this.lastErrorCell = null;
         
+        // Ajustar el tamaño de las celdas para tableros más grandes
+        this.cellSize = Math.min(60, 600 / size); // Ajuste dinámico del tamaño de celda
+        
         initializeComponents();
         layoutComponents();
         setupStyle();
     }
 
+    /**
+     * Inicializa los componentes del tablero.
+     */
     private void initializeComponents() {
         cellPanels = new JPanel[size][size];
         cellButtons = new JButton[size][size];
@@ -84,9 +98,16 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * Crea un botón para una celda específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @return El botón creado.
+     */
     private JButton createCellButton(final int row, final int col) {
         JButton button = new JButton();
-        button.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
+        button.setPreferredSize(new Dimension(cellSize, cellSize));
         button.setFont(new Font("Arial", Font.PLAIN, 20));
         button.setFocusPainted(false);
         button.setBackground(CELL_BACKGROUND);
@@ -118,6 +139,11 @@ public class GameBoard extends JPanel {
         return button;
     }
 
+    /**
+     * Crea un label para desigualdades.
+     * 
+     * @return El label creado.
+     */
     private JLabel createInequalityLabel() {
         JLabel label = new JLabel(" ");
         label.setPreferredSize(new Dimension(INEQUALITY_SIZE, INEQUALITY_SIZE));
@@ -127,6 +153,11 @@ public class GameBoard extends JPanel {
         return label;
     }
 
+    /**
+     * Crea el borde de una celda.
+     * 
+     * @return El borde creado.
+     */
     private Border createCellBorder() {
         return BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(CELL_BORDER, 1),
@@ -134,6 +165,9 @@ public class GameBoard extends JPanel {
         );
     }
 
+    /**
+     * Organiza los componentes del tablero.
+     */
     private void layoutComponents() {
         setLayout(new GridLayout(size, size, 1, 1));
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -146,13 +180,21 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * Configura el estilo del tablero.
+     */
     private void setupStyle() {
         setPreferredSize(new Dimension(
-            (CELL_SIZE + INEQUALITY_SIZE) * size,
-            (CELL_SIZE + INEQUALITY_SIZE) * size
+            (cellSize + INEQUALITY_SIZE) * size,
+            (cellSize + INEQUALITY_SIZE) * size
         ));
     }
 
+    /**
+     * Actualiza el tablero con los valores del modelo FutoshikiBoard.
+     * 
+     * @param board El modelo FutoshikiBoard.
+     */
     public void updateBoard(FutoshikiBoard board) {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -162,6 +204,13 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * Actualiza una celda específica con los valores del modelo Celda.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     * @param celda El modelo Celda.
+     */
     public void updateCell(int row, int col, Celda celda) {
         // Actualizar valor
         JButton button = cellButtons[row][col];
@@ -194,6 +243,12 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * Actualiza el label de desigualdad con el símbolo correspondiente.
+     * 
+     * @param label El label a actualizar.
+     * @param inequality El símbolo de desigualdad.
+     */
     private void updateInequalityLabel(JLabel label, String inequality) {
         switch (inequality) {
             case GameConstants.SYMBOL_LESSER:  // "<"
@@ -219,6 +274,12 @@ public class GameBoard extends JPanel {
         label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
+    /**
+     * Muestra un error en una celda específica.
+     * 
+     * @param row La fila de la celda.
+     * @param col La columna de la celda.
+     */
     public void showError(int row, int col) {
         if (lastErrorCell != null) {
             cellButtons[lastErrorCell.x][lastErrorCell.y].setBackground(CELL_BACKGROUND);
@@ -238,6 +299,11 @@ public class GameBoard extends JPanel {
         timer.start();
     }
 
+    /**
+     * Establece el tamaño del tablero.
+     * 
+     * @param newSize El nuevo tamaño del tablero.
+     */
     public void setSize(int newSize) {
         if (this.size != newSize) {
             this.size = newSize;
@@ -250,6 +316,11 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * Establece si el tablero es jugable.
+     * 
+     * @param playable true si el tablero es jugable, false en caso contrario.
+     */
     public void setPlayable(boolean playable) {
         this.isPlayable = playable;
         for (int i = 0; i < size; i++) {
@@ -261,25 +332,46 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * Añade un listener para los clicks en las celdas.
+     * 
+     * @param listener El listener a añadir.
+     */
     public void addCellClickListener(CellClickListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Elimina un listener para los clicks en las celdas.
+     * 
+     * @param listener El listener a eliminar.
+     */
     public void removeCellClickListener(CellClickListener listener) {
         listeners.remove(listener);
     }
 
+    /**
+     * Notifica a los listeners que una celda ha sido clickeada.
+     * 
+     * @param row La fila de la celda clickeada.
+     * @param col La columna de la celda clickeada.
+     */
     private void notifyCellClick(int row, int col) {
         for (CellClickListener listener : listeners) {
             listener.onCellClick(row, col);
         }
     }
 
-    // Interfaz para el listener de clicks en celdas
+    /**
+     * Interfaz para el listener de clicks en celdas.
+     */
     public interface CellClickListener {
         void onCellClick(int row, int col);
     }
 
+    /**
+     * Reinicia el tablero a su estado inicial.
+     */
     public void reset() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {

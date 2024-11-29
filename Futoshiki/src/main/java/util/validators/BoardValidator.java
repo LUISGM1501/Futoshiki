@@ -5,6 +5,16 @@ import model.game.Celda;
 public class BoardValidator {
     
     // Valida una jugada en el tablero
+    /**
+     * Valida una jugada en el tablero de Futoshiki.
+     * 
+     * @param board El tablero de juego representado como una matriz de celdas.
+     * @param row La fila de la celda donde se realiza la jugada.
+     * @param col La columna de la celda donde se realiza la jugada.
+     * @param value El valor que se desea colocar en la celda.
+     * @param size El tamaño del tablero.
+     * @return Un mensaje de error si la jugada no es válida, o null si es válida.
+     */
     public static String validateMove(Celda[][] board, int row, int col, int value, int size) {
         // Validar si la celda es constante
         if (board[row][col].isConstant()) {
@@ -75,6 +85,13 @@ public class BoardValidator {
     }
     
     // Verifica si el tablero está completo y válido
+    /**
+     * Verifica si el tablero está completo y todas las jugadas son válidas.
+     * 
+     * @param board El tablero de juego representado como una matriz de celdas.
+     * @param size El tamaño del tablero.
+     * @return true si el tablero está completo y válido, false de lo contrario.
+     */
     public static boolean isGameComplete(Celda[][] board, int size) {
         // Verificar que todas las celdas estén llenas
         for (int i = 0; i < size; i++) {

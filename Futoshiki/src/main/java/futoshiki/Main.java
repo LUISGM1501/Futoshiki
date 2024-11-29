@@ -14,71 +14,65 @@ import model.config.Configuration;
 import model.game.FutoshikiBoard;
 import model.game.GameState;
 import model.player.PlayerManager;
-import view.dialogs.ConfigurationDialog;
 import view.dialogs.PlayerLoginDialog;
 import view.game.MainWindow;
+import persistence.ConfigurationManager;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            // Usar look and feel más moderno
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            // Configurar fuentes y colores globales
-            configureGlobalUI();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         SwingUtilities.invokeLater(() -> {
-            // Crear splash screen
-            JWindow splash = createSplashScreen();
-            splash.setVisible(true);
             try {
-                Thread.sleep(2000); // Mostrar splash por 2 segundos
-
-                // Inicializar componentes del juego
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                configureGlobalUI();
+                
+                // Mostrar pantalla de carga
+                JWindow splashScreen = createSplashScreen();
+                splashScreen.setVisible(true);
+                
+                // Inicializar el PlayerManager
                 PlayerManager playerManager = new PlayerManager();
-                Configuration config = new Configuration();
-                GameState gameState = new GameState(new FutoshikiBoard(3), "Facil", config.toString());
-                MainWindow mainWindow = new MainWindow();
-
-                // Crear y configurar controladores
-                ConfigurationController configController =
-                    new ConfigurationController(config, mainWindow);
-                GameController gameController =
-                    new GameController(gameState, mainWindow);
-                TimerController timerController =
-                        new TimerController();
-                ScoreController scoreController = new ScoreController(mainWindow);
                 
                 // Mostrar diálogo de login
                 PlayerLoginDialog loginDialog = new PlayerLoginDialog(null, playerManager);
-                loginDialog.setLocationRelativeTo(null);
-
-                // Cerrar splash y mostrar login
-                splash.dispose();
+                splashScreen.dispose();
                 loginDialog.setVisible(true);
-
-
-                // Cuando se cierra el login, configurar y mostrar ventana principal
-                if (loginDialog.isLoggedIn()) {
-                    config.setPlayerName(loginDialog.getPlayerName());
-                } else {
-                    config.setPlayerName("Invitado");
+                
+                // Si el usuario cancela el login, la aplicación termina
+                if (!loginDialog.isLoggedIn() && loginDialog.getPlayerName().isEmpty()) {
+                    System.exit(0);
                 }
-
-                timerController.setValores(config);
-
-                // Inicializar la ventana principal
-
+                
+                // Crear componentes principales
+                Configuration defaultConfig = new Configuration();
+                defaultConfig.setPlayerName(loginDialog.getPlayerName());
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.setPlayerName(loginDialog.getPlayerName());
+                
+                // Crear y configurar controladores
+                ConfigurationController configController = new ConfigurationController(defaultConfig, mainWindow);
+                GameState gameState = new GameState(
+                    new FutoshikiBoard(configController.getConfiguration().getGridSize()),
+                    configController.getConfiguration().getDifficulty(),
+                    configController.getConfiguration().toString()
+                );
+                
+                GameController gameController = new GameController(gameState, mainWindow, configController);
+                ScoreController scoreController = new ScoreController(mainWindow);
+                
+                // Crear TimerController con las referencias necesarias
+                TimerController timerController = new TimerController(mainWindow, gameController);
+                
+                // Inicializar la ventana principal con todos los controladores
                 mainWindow.initializeControllers(configController, gameController, scoreController, timerController);
-                mainWindow.setPlayerName(config.getPlayerName());
-
-
                 mainWindow.setVisible(true);
-
-            } catch (InterruptedException e) {
+                
+            } catch (Exception e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(null,
+                    "Error al iniciar la aplicación: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                System.exit(1);
             }
         });
     }
@@ -92,6 +86,7 @@ public class Main {
         UIManager.put("Button.font", new Font("Segoe UI", Font.PLAIN, 14));
         UIManager.put("Label.font", new Font("Segoe UI", Font.PLAIN, 14));
     }
+
     private static JWindow createSplashScreen() {
         JWindow splash = new JWindow();
         JPanel content = new JPanel(new BorderLayout());

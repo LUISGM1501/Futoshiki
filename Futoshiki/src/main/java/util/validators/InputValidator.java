@@ -8,6 +8,12 @@ public class InputValidator {
     private static final int MAX_PLAYER_NAME_LENGTH = 30;
     
     // Valida el tamaño de la cuadrícula
+    /**
+     * Valida que el tamaño de la cuadrícula esté dentro de los límites permitidos.
+     * 
+     * @param size El tamaño de la cuadrícula a validar.
+     * @return Un mensaje de error si el tamaño es inválido, o null si es válido.
+     */
     public static String validateGridSize(int size) {
         if (size < MIN_GRID_SIZE || size > MAX_GRID_SIZE) {
             return "El tamaño de la cuadrícula debe estar entre " + MIN_GRID_SIZE + " y " + MAX_GRID_SIZE;
@@ -16,6 +22,12 @@ public class InputValidator {
     }
     
     // Valida el nivel de dificultad
+    /**
+     * Valida que el nivel de dificultad sea uno de los valores permitidos.
+     * 
+     * @param difficulty El nivel de dificultad a validar.
+     * @return Un mensaje de error si el nivel es inválido, o null si es válido.
+     */
     public static String validateDifficulty(String difficulty) {
         if (difficulty == null || difficulty.trim().isEmpty()) {
             return "Debe seleccionar un nivel de dificultad";
@@ -32,9 +44,20 @@ public class InputValidator {
     }
     
     // Valida el nombre del jugador
+    /**
+     * Valida que el nombre del jugador cumpla con los requisitos de longitud y caracteres permitidos.
+     * 
+     * @param name El nombre del jugador a validar.
+     * @return Un mensaje de error si el nombre es inválido, o null si es válido.
+     */
     public static String validatePlayerName(String name) {
         if (name == null) {
             return "El nombre no puede ser null";
+        }
+
+        // No puede ser el nombre de un jugador invitado
+        if (name.equals("Invitado")) {
+            return "El nombre de jugador invitado no es válido";
         }
         
         // Nombre vacío está permitido (jugador incógnito)
@@ -55,6 +78,12 @@ public class InputValidator {
     }
     
     // Valida la contraseña del jugador
+    /**
+     * Valida que la contraseña cumpla con los requisitos mínimos de longitud y contenido.
+     * 
+     * @param password La contraseña a validar.
+     * @return Un mensaje de error si la contraseña es inválida, o null si es válida.
+     */
     public static String validatePassword(String password) {
         if (password == null || password.trim().isEmpty()) {
             return "La contraseña no puede estar vacía";
@@ -81,6 +110,12 @@ public class InputValidator {
     }
     
     // Valida el email para recuperación de contraseña
+    /**
+     * Valida que el email tenga un formato correcto.
+     * 
+     * @param email El email a validar.
+     * @return Un mensaje de error si el email es inválido, o null si es válido.
+     */
     public static String validateEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return "El email no puede estar vacío";
@@ -95,6 +130,12 @@ public class InputValidator {
     }
     
     // Valida la configuración del juego
+    /**
+     * Valida que la configuración del juego sea correcta.
+     * 
+     * @param config La configuración del juego a validar.
+     * @return Un mensaje de error si la configuración es inválida, o null si es válida.
+     */
     public static String validateConfiguration(Configuration config) {
         // Validar tamaño de cuadrícula
         String gridSizeError = validateGridSize(config.getGridSize());
