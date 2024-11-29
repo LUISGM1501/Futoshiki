@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import controller.config.ConfigurationController;
 import model.config.Configuration;
 import model.game.FutoshikiBoard;
+import model.game.FutoshikiGenerator;
 import model.game.GameState;
 import model.game.Move;
 import persistence.ConfigurationManager;
@@ -22,6 +23,7 @@ import persistence.XMLHandler.GameData;
 import util.constants.MessageConstants;
 import view.dialogs.GameSetupDialog;
 import view.game.MainWindow;
+
 /**
  * Controlador del juego Futoshiki.
  */
@@ -80,6 +82,7 @@ public class GameController {
      * Inicia un nuevo juego.
      */
     public void startGame() {
+        System.out.println("=== INICIO DE STARTGAME ===");
         view.stopTimer();
         view.restartTimer();
         GameSetupDialog dialog = new GameSetupDialog(view);
@@ -90,6 +93,11 @@ public class GameController {
             selectedSize = dialog.getSelectedSize();
             isMultiNivel = dialog.isMultiNivel();
             
+            System.out.println("Configuración seleccionada:");
+            System.out.println("- Tamaño: " + selectedSize);
+            System.out.println("- Dificultad: " + selectedDifficulty);
+            System.out.println("- Multinivel: " + isMultiNivel);
+
             // Actualizar la configuración existente en lugar de crear una nueva
             config.setGridSize(selectedSize);
             config.setDifficulty(selectedDifficulty);
@@ -111,54 +119,65 @@ public class GameController {
             configController.updateConfiguration(config);
             
             view.getDigitPanel().setMaxDigits(selectedSize);
+            view.setLevel(selectedDifficulty);
             
-            // Guardar configuración cuando se inicia un nuevo juego
-            System.out.println("GameController: Guardando configuración después de iniciar juego");
-            
-            // Actualizar la configuración
-            config.setGridSize(selectedSize);
-            config.setDifficulty(selectedDifficulty);
-            config.setTimerType(dialog.getTimerType());
-            config.setMultiLevel(dialog.isMultiNivel());
-            
-            // Actualizar el panel de dígitos antes de inicializar el juego
-            view.getDigitPanel().setMaxDigits(selectedSize);
-            
-            if(dialog.getTimerType().equals("Temporizador")) {
-                config.setTimerHours(dialog.getHours());
-                config.setTimerMinutes(dialog.getMinutes());
-                config.setTimerSeconds(dialog.getSeconds());
+            // PRINT 1: Antes de inicializar
+            System.out.println("\nEstado antes de inicializar juego:");
+            System.out.println("- isGameStarted: " + isGameStarted);
+            System.out.println("- isPlayable: " + view.getGameBoard().isPlayable());
+
+            if (selectedSize >= 6) {
+                System.out.println("\n=== INICIANDO JUEGO GENERADO ===");
+                FutoshikiBoard board = FutoshikiGenerator.generateGame(selectedSize, selectedDifficulty);
+                gameState.setBoard(board);
+                gameState.setDifficulty(selectedDifficulty);
+                isGameStarted = true;
+                
+                // PRINT 2: Después de generar tablero
+                System.out.println("\nTablero generado:");
+                System.out.println("- Tamaño: " + board.getSize());
+                System.out.println("- Estado isGameStarted: " + isGameStarted);
+                
+                // Habilitar jugabilidad
+                view.getGameBoard().setPlayable(true);
+                view.enableGameButtons(true);
+                
+                // PRINT 3: Después de habilitar jugabilidad
+                System.out.println("\nEstado después de habilitar jugabilidad:");
+                System.out.println("- isPlayable: " + view.getGameBoard().isPlayable());
+                
+                // Actualizar visualización
+                view.getGameBoard().updateBoard(board);
+                
+                // PRINT 4: Estado final
+                System.out.println("\nEstado final del juego:");
+                System.out.println("- isGameStarted: " + isGameStarted);
+                System.out.println("- isPlayable: " + view.getGameBoard().isPlayable());
             } else {
-                config.setTimerHours(0);
-                config.setTimerMinutes(0);
-                config.setTimerSeconds(0);
+                List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
+                if (availableGamesForConfig == null || availableGamesForConfig.isEmpty()) {
+                    JOptionPane.showMessageDialog(view, 
+                        MessageConstants.INFO_NO_GAMES_FOR_LEVEL,
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                gamesForSize = availableGamesForConfig.stream()
+                    .filter(game -> game.getTamano() == selectedSize)
+                    .toList();
+
+                if (gamesForSize.isEmpty()) {
+                    JOptionPane.showMessageDialog(view,
+                        "NO HAY PARTIDAS PARA ESTE TAMAÑO DE TABLERO",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Inicializar nuevo juego
+                initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, dialog);
             }
-
-            ConfigurationManager.saveConfiguration(config);
-
-            List<GameData> availableGamesForConfig = availableGames.get(selectedDifficulty);
-            if (availableGamesForConfig == null || availableGamesForConfig.isEmpty()) {
-                JOptionPane.showMessageDialog(view, 
-                    MessageConstants.INFO_NO_GAMES_FOR_LEVEL,
-                    "Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            gamesForSize = availableGamesForConfig.stream()
-                .filter(game -> game.getTamano() == selectedSize)
-                .toList();
-
-            if (gamesForSize.isEmpty()) {
-                JOptionPane.showMessageDialog(view,
-                    "NO HAY PARTIDAS PARA ESTE TAMAÑO DE TABLERO",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Inicializar nuevo juego
-            initializeNewGame(gamesForSize, selectedDifficulty, selectedSize, dialog);
         }
     }
 
@@ -171,39 +190,67 @@ public class GameController {
      * @param dialog Diálogo de configuración del juego.
      */
     private void initializeNewGame(List<GameData> gamesForSize, String difficulty, int size, GameSetupDialog dialog) {
-        // Seleccionar partida aleatoria
-        GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
-        FutoshikiBoard board = createBoard(selectedGame);
+        FutoshikiBoard board;
+        
+        if (size >= 6) {
+            System.out.println("Generando tablero " + size + "x" + size);
+            board = FutoshikiGenerator.generateGame(size, difficulty);
+            System.out.println("Tablero generado, actualizando vista...");
+            
+            // Verificar que el tablero se generó correctamente
+            if (board != null) {
+                // Imprimir estado del tablero para debug
+                System.out.println("Estado del tablero generado:");
+                for (int i = 0; i < size; i++) {
+                    for (int j = 0; j < size; j++) {
+                        if (board.isConstant(i, j)) {
+                            System.out.print("[" + board.getValue(i, j) + "] ");
+                        } else {
+                            System.out.print(board.getValue(i, j) + " ");
+                        }
+                    }
+                    System.out.println();
+                }
+            }
+        } else {
+            // Seleccionar partida aleatoria del XML para tamaños 3x3 a 5x5
+            GameData selectedGame = gamesForSize.get(random.nextInt(gamesForSize.size()));
+            board = createBoard(selectedGame);
+        }
         
         // Configurar estado del juego
         gameState.setBoard(board);
         gameState.setDifficulty(difficulty);
         
-        // Reiniciar estructuras de control
+        // Reiniciar estructuras
         moves.clear();
         redoMoves.clear();
-        isGameStarted = true;
-        startTime = System.currentTimeMillis();
         
-        // Obtener la posición seleccionada del diálogo
-        String selectedPosition = dialog.getSelectedPosition();
-        if (selectedPosition != null) {
-            config.setDigitPanelPosition(selectedPosition);
-        }
+        // IMPORTANTE: Establecer el estado de juego antes de actualizar la vista
+        isGameStarted = true;
         
         // Actualizar la vista
         view.setLevel(difficulty);
         view.setTimerType(config);
-        view.setConfiguration(config); // Asegurarse de que la configuración se actualice
-        view.enableGameButtons(true);
-        view.getGameBoard().setPlayable(true);
         view.getGameBoard().setSize(size);
-        view.updateConfigurationView();
+        view.getDigitPanel().setMaxDigits(size);
+        
+        // CRÍTICO: Habilitar la jugabilidad ANTES de actualizar el tablero
+        view.getGameBoard().setPlayable(true);
+        view.enableGameButtons(true);
+        
+        // Actualizar el tablero
+        view.getGameBoard().updateBoard(board);
+        
+        // Iniciar el timer
+        startTime = System.currentTimeMillis();
         view.startTimer();
         
-        // Inicializar timer y tablero
-        startTimer();
-        updateGameBoard();
+        // Verificación
+        System.out.println("Estado final de inicialización:");
+        System.out.println("- Juego iniciado: " + isGameStarted);
+        System.out.println("- Tablero jugable: " + view.getGameBoard().isPlayable());
+        System.out.println("- Tamaño del tablero: " + board.getSize());
     }
 
     /**
@@ -248,7 +295,10 @@ public class GameController {
         System.out.println("  selectedDigit: " + selectedDigit);
         System.out.println("  eraserSelected: " + view.getDigitPanel().isEraserSelected());
 
-        if (!isGameStarted) return;
+        if (!isGameStarted) {
+            System.out.println("  El juego no ha comenzado, saliendo de handleCellClick.");
+            return;
+        }
 
         FutoshikiBoard board = gameState.getBoard();
         System.out.println("  Valor actual en celda: " + board.getValue(row, col));
@@ -257,6 +307,7 @@ public class GameController {
         
         // Verificar si es celda constante
         if (board.isConstant(row, col)) {
+            System.out.println("  Error: Intento de modificar una celda constante.");
             JOptionPane.showMessageDialog(view,
                 MessageConstants.ERROR_CONSTANT_CELL,
                 "Error",
@@ -271,11 +322,14 @@ public class GameController {
         if (isErasing) {
             int currentValue = board.getValue(row, col);
             if (currentValue > 0) {
+                System.out.println("  Borrando valor en celda: " + currentValue);
                 moves.push(new Move(row, col, 0, currentValue));
                 redoMoves.clear();
                 board.clearCell(row, col);
                 updateGameBoard();
                 System.out.println("Celda borrada en posición: " + row + "," + col);
+            } else {
+                System.out.println("  No hay valor para borrar en la celda.");
             }
             return;
         }
@@ -283,6 +337,7 @@ public class GameController {
         System.out.println("GameController - Procesando jugada normal");
         // Si no hay dígito seleccionado y no es borrado, mostrar error
         if (selectedDigit == 0) {
+            System.out.println("  Error: No hay dígito seleccionado.");
             JOptionPane.showMessageDialog(view,
                 MessageConstants.ERROR_NO_DIGIT_SELECTED,
                 "Error",
@@ -292,6 +347,7 @@ public class GameController {
 
         // Manejar colocación de dígito
         int previousValue = board.getValue(row, col);
+        System.out.println("  Intentando colocar dígito: " + selectedDigit + " en celda con valor previo: " + previousValue);
         String error = validateMove(row, col, selectedDigit);
         
         if (error == null) {
@@ -299,11 +355,14 @@ public class GameController {
             moves.push(new Move(row, col, selectedDigit, previousValue));
             redoMoves.clear();
             updateGameBoard();
-            
+            System.out.println("  Dígito colocado exitosamente.");
+
             if (board.isBoardComplete()) {
+                System.out.println("  El tablero está completo. Juego terminado.");
                 handleGameCompletion();
             }
         } else {
+            System.out.println("  Error al validar la jugada: " + error);
             JOptionPane.showMessageDialog(view, error, "Error", JOptionPane.ERROR_MESSAGE);
             view.getGameBoard().showError(row, col);
         }

@@ -41,7 +41,7 @@ public class GameBoard extends JPanel {
     private JButton[][] cellButtons;
     private JLabel[][] rightLabels;
     private JLabel[][] bottomLabels;
-    private boolean isPlayable;
+    private volatile boolean isPlayable; // Hacer volátil para asegurar visibilidad entre hilos
     private List<CellClickListener> listeners;
     private Point lastErrorCell;
 
@@ -114,8 +114,11 @@ public class GameBoard extends JPanel {
         button.setBorder(createCellBorder());
         
         button.addActionListener(e -> {
+            System.out.println("Click en celda [" + row + "," + col + "]");
             if (isPlayable) {
                 notifyCellClick(row, col);
+            } else {
+                System.out.println("Tablero no jugable");
             }
         });
         
@@ -196,12 +199,56 @@ public class GameBoard extends JPanel {
      * @param board El modelo FutoshikiBoard.
      */
     public void updateBoard(FutoshikiBoard board) {
+        System.out.println("GameBoard: Iniciando actualización del tablero");
+        
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Celda celda = board.getCellAt(row, col);
-                updateCell(row, col, celda);
+                JButton button = cellButtons[row][col];
+                
+                // Actualizar valor
+                int valor = celda.getValor();
+                button.setText(valor > 0 ? String.valueOf(valor) : "");
+                
+                // Configurar estilo y estado
+                if (celda.isConstant()) {
+                    button.setFont(new Font("Arial", Font.BOLD, 20));
+                    button.setForeground(CONSTANT_COLOR);
+                    button.setEnabled(false);
+                    System.out.println("Celda constante en [" + row + "," + col + "] = " + valor);
+                } else {
+                    button.setFont(new Font("Arial", Font.PLAIN, 20));
+                    button.setForeground(Color.BLACK);
+                    button.setEnabled(isPlayable);
+                }
+                
+                // Actualizar desigualdades
+                if (col < size - 1) {
+                    String rightIneq = celda.getDesDer();
+                    rightLabels[row][col].setText(rightIneq);
+                    if (!rightIneq.equals(" ")) {
+                        System.out.println("Desigualdad horizontal en [" + row + "," + col + "]: " + rightIneq);
+                    }
+                }
+                
+                if (row < size - 1) {
+                    String bottomIneq = celda.getDesAbajo();
+                    bottomLabels[row][col].setText(bottomIneq);
+                    if (!bottomIneq.equals(" ")) {
+                        System.out.println("Desigualdad vertical en [" + row + "," + col + "]: " + bottomIneq);
+                    }
+                }
             }
         }
+        
+        // Actualizar jugabilidad después de configurar el tablero
+        updateCellsPlayability();
+        
+        // Forzar actualización visual
+        revalidate();
+        repaint();
+        
+        System.out.println("GameBoard: Tablero actualizado y jugable: " + isPlayable);
     }
 
     /**
@@ -306,14 +353,53 @@ public class GameBoard extends JPanel {
      */
     public void setSize(int newSize) {
         if (this.size != newSize) {
+            System.out.println("GameBoard: Actualizando tamaño de " + this.size + " a " + newSize);
             this.size = newSize;
+            this.cellSize = Math.min(60, 600 / size); // Ajustar tamaño de celdas
+            
+            // Recrear completamente los componentes
             removeAll();
             initializeComponents();
             layoutComponents();
             setupStyle();
+            
+            // Forzar actualización del tamaño preferido
+            setPreferredSize(new Dimension(
+                (cellSize + INEQUALITY_SIZE) * size,
+                (cellSize + INEQUALITY_SIZE) * size
+            ));
+            
+            // Forzar actualización visual
             revalidate();
             repaint();
+            
+            System.out.println("GameBoard: Actualización de tamaño completada");
         }
+    }
+
+    private void updateCellsPlayability() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                JButton button = cellButtons[i][j];
+                // Solo habilitar celdas no constantes
+                boolean isConstant = button.getFont().isBold();
+                button.setEnabled(isPlayable && !isConstant);
+                
+                if (isPlayable && !isConstant) {
+                    // Asegurarnos que los listeners estén activos
+                    if (button.getActionListeners().length == 0) {
+                        final int row = i;
+                        final int col = j;
+                        button.addActionListener(e -> {
+                            if (isPlayable) {
+                                notifyCellClick(row, col);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        System.out.println("GameBoard: Estado de celdas actualizado. Jugable: " + isPlayable);
     }
 
     /**
@@ -322,14 +408,30 @@ public class GameBoard extends JPanel {
      * @param playable true si el tablero es jugable, false en caso contrario.
      */
     public void setPlayable(boolean playable) {
+        System.out.println("\n=== SETPLAYABLE LLAMADO ===");
+        System.out.println("Valor anterior: " + this.isPlayable);
+        System.out.println("Nuevo valor: " + playable);
+        
         this.isPlayable = playable;
+        
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (!cellButtons[i][j].getFont().isBold()) {  // No es constante
+                    boolean enabled = cellButtons[i][j].isEnabled();
+                    System.out.println("Celda [" + i + "," + j + "] - Antes: " + enabled + ", Después: " + playable);
                     cellButtons[i][j].setEnabled(playable);
                 }
             }
         }
+    }
+
+    /**
+     * Obtiene si el tablero es jugable.
+     * 
+     * @return true si el tablero es jugable, false en caso contrario.
+     */
+    public boolean isPlayable() {
+        return isPlayable;
     }
 
     /**
