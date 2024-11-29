@@ -270,6 +270,7 @@ public class MainWindow extends JFrame {
      * Inicia el temporizador.
      */
     public void startTimer() {
+        System.out.println("MainWindow: Iniciando timer");
         if (timer != null) {
             timer.stop();
         }
@@ -279,16 +280,27 @@ public class MainWindow extends JFrame {
             updateTimer(timerController.getHoursPassed(), 
                         timerController.getMinutesPassed(), 
                         timerController.getSecondsPassed());
+                        
+            System.out.println("Timer tick: " + 
+                timerController.getHoursPassed() + ":" + 
+                timerController.getMinutesPassed() + ":" + 
+                timerController.getSecondsPassed());
         });
+        
         timer.start();
+        System.out.println("MainWindow: Timer iniciado");
     }
 
     /**
      * Reinicia el temporizador.
      */
     public void restartTimer() {
-        if (timer != null) {
-            timer.restart();
+        System.out.println("MainWindow: Reiniciando timer");
+        if (timerController != null) {
+            timerController.setHoursPassed(0);
+            timerController.setMinutesPassed(0);
+            timerController.setSecondsPassed(0);
+            updateTimer(0, 0, 0);
         }
     }
 
@@ -296,6 +308,7 @@ public class MainWindow extends JFrame {
      * Detiene el temporizador.
      */
     public void stopTimer() {
+        System.out.println("MainWindow: Deteniendo timer");
         if (timer != null) {
             timer.stop();
         }

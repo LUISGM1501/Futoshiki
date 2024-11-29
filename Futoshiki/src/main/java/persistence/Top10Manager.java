@@ -45,38 +45,112 @@ public class Top10Manager {
      * @return true si el score fue agregado (entró al top 10), false en caso contrario.
      */
     public boolean addScore(GameScore score) {
-        System.out.println("Intentando agregar score al Top 10:");
-        System.out.println("Jugador: " + score.getPlayerName());
-        System.out.println("Tiempo: " + score.getHours() + ":" + 
+        System.out.println("\n=== AÑADIENDO NUEVO SCORE ===");
+        System.out.println("Score a añadir:");
+        System.out.println("- Jugador: " + score.getPlayerName());
+        System.out.println("- Tiempo: " + score.getHours() + ":" + 
                           score.getMinutes() + ":" + score.getSeconds());
-        System.out.println("Dificultad: " + score.getDifficulty());
-        
-        List<GameScore> levelScores = scoresByLevel.get(score.getDifficulty());
-        System.out.println("Scores actuales en este nivel: " + levelScores.size());
-        
-        boolean added = false;
-        // Si no hay 10 scores, agregar directamente
-        if (levelScores.size() < GameConstants.TOP_10_SIZE) {
-            levelScores.add(score);
-            added = true;
-        } else {
-            // Si el nuevo score es mejor que el último
-            GameScore lastScore = levelScores.get(levelScores.size() - 1);
-            if (score.compareTo(lastScore) < 0) {
-                levelScores.remove(lastScore);
-                levelScores.add(score);
-                added = true;
+        System.out.println("- Dificultad: " + score.getDifficulty());
+        System.out.println("- Tamaño: " + score.getGridSize());
+
+        try {
+            // Cargar scores existentes primero
+            Document doc;
+            Element rootElement;
+            File file = new File(FileConstants.TOP10_FILE);
+            
+            if (file.exists()) {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                doc = dBuilder.parse(file);
+                rootElement = doc.getDocumentElement();
+            } else {
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                doc = docBuilder.newDocument();
+                rootElement = doc.createElement("top10");
+                doc.appendChild(rootElement);
             }
+
+            // Buscar o crear el elemento del nivel
+            Element nivelElement = null;
+            NodeList niveles = doc.getElementsByTagName("nivel");
+            for (int i = 0; i < niveles.getLength(); i++) {
+                Element nivel = (Element) niveles.item(i);
+                if (nivel.getAttribute("dificultad").equals(score.getDifficulty())) {
+                    nivelElement = nivel;
+                    break;
+                }
+            }
+
+            if (nivelElement == null) {
+                nivelElement = doc.createElement("nivel");
+                nivelElement.setAttribute("dificultad", score.getDifficulty());
+                rootElement.appendChild(nivelElement);
+            }
+
+            // Crear nuevo elemento score
+            Element scoreElement = doc.createElement("score");
+            scoreElement.setAttribute("jugador", score.getPlayerName());
+            scoreElement.setAttribute("horas", String.valueOf(score.getHours()));
+            scoreElement.setAttribute("minutos", String.valueOf(score.getMinutes()));
+            scoreElement.setAttribute("segundos", String.valueOf(score.getSeconds()));
+            scoreElement.setAttribute("tamano", String.valueOf(score.getGridSize()));
+
+            // Añadir nuevo score
+            nivelElement.appendChild(scoreElement);
+
+            // Ordenar y mantener solo los mejores 10 scores por nivel y tamaño
+            List<Element> scoreElements = new ArrayList<>();
+            NodeList scores = nivelElement.getElementsByTagName("score");
+            for (int i = 0; i < scores.getLength(); i++) {
+                scoreElements.add((Element) scores.item(i));
+            }
+
+            // Ordenar por tiempo y filtrar por tamaño
+            final int finalSize = score.getGridSize();
+            scoreElements.removeIf(e -> Integer.parseInt(e.getAttribute("tamano")) != finalSize);
+            scoreElements.sort((a, b) -> compareScores(a, b));
+
+            // Mantener solo los mejores 10
+            while (scoreElements.size() > 10) {
+                Element lastScore = scoreElements.remove(scoreElements.size() - 1);
+                nivelElement.removeChild(lastScore);
+            }
+
+            // Guardar el documento
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(file);
+            transformer.transform(source, result);
+            
+            System.out.println("Score guardado exitosamente en " + file.getAbsolutePath());
+            return true;
+            
+        } catch (Exception e) {
+            System.err.println("Error al guardar el score: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
+    }
+
+    private int compareScores(Element a, Element b) {
+        int hoursA = Integer.parseInt(a.getAttribute("horas"));
+        int minutesA = Integer.parseInt(a.getAttribute("minutos"));
+        int secondsA = Integer.parseInt(a.getAttribute("segundos"));
         
-        if (added) {
-            sortScores(levelScores);
-            saveScores();
-            // Notificar a la vista que hay nuevos scores
-            ScoreboardView.getInstance().updateScores();
-        }
+        int hoursB = Integer.parseInt(b.getAttribute("horas"));
+        int minutesB = Integer.parseInt(b.getAttribute("minutos"));
+        int secondsB = Integer.parseInt(b.getAttribute("segundos"));
         
-        return added;
+        int totalSecondsA = hoursA * 3600 + minutesA * 60 + secondsA;
+        int totalSecondsB = hoursB * 3600 + minutesB * 60 + secondsB;
+        
+        return Integer.compare(totalSecondsA, totalSecondsB);
     }
     
     /**
@@ -152,7 +226,7 @@ public class Top10Manager {
     /**
      * Guarda los scores en el archivo.
      */
-    private void saveScores() {
+    private boolean saveScores() {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -191,8 +265,12 @@ public class Top10Manager {
             StreamResult result = new StreamResult(new File(FileConstants.TOP10_FILE));
             transformer.transform(source, result);
 
+            System.out.println("Guardando scores en: " + FileConstants.TOP10_FILE);
+            return true;
         } catch (Exception e) {
+            System.err.println("Error al guardar scores: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
     }
     
@@ -214,10 +292,18 @@ public class Top10Manager {
      * @return true si el tiempo calificaría para el Top 10, false en caso contrario.
      */
     public boolean wouldQualifyForTop10(String level, int totalSeconds, int size) {
+        System.out.println("\n=== VERIFICACIÓN DE CALIFICACIÓN TOP 10 ===");
+        System.out.println("Verificando para:");
+        System.out.println("- Dificultad: " + level);
+        System.out.println("- Tiempo: " + totalSeconds + " segundos");
+        System.out.println("- Tamaño: " + size);
+
         List<GameScore> levelScores = getScoresByLevelAndSize(level, size);
-        
+        System.out.println("Scores actuales para esta categoría: " + levelScores.size());
+
         // Si no hay 10 scores, cualquier tiempo califica
         if (levelScores.size() < GameConstants.TOP_10_SIZE) {
+            System.out.println("Califica automáticamente - Menos de 10 scores");
             return true;
         }
         
@@ -226,6 +312,9 @@ public class Top10Manager {
         int lastScoreSeconds = lastScore.getHours() * 3600 + 
                              lastScore.getMinutes() * 60 + 
                              lastScore.getSeconds();
+        
+        System.out.println("Último tiempo en top 10: " + lastScoreSeconds + " segundos");
+        System.out.println("¿Nuevo tiempo califica?: " + (totalSeconds < lastScoreSeconds));
         
         return totalSeconds < lastScoreSeconds;
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuracion>
-  <tamano>5</tamano>
+  <tamano>6</tamano>
   <dificultad>Facil</dificultad>
   <multinivel>false</multinivel>
   <tipoTimer>Cronómetro</tipoTimer>

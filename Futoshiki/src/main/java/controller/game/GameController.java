@@ -22,7 +22,9 @@ import persistence.XMLHandler;
 import persistence.XMLHandler.GameData;
 import util.constants.MessageConstants;
 import view.dialogs.GameSetupDialog;
+import model.game.GameScore;
 import view.game.MainWindow;
+import controller.timer.TimerController;
 
 /**
  * Controlador del juego Futoshiki.
@@ -45,6 +47,7 @@ public class GameController {
     private long startTime;
     private ConfigurationController configController;
     private boolean canPlay;
+    private TimerController timerController;
 
     /**
      * Constructor del GameController.
@@ -69,6 +72,7 @@ public class GameController {
         this.config = configController.getConfiguration();
         
         loadAvailableGames();
+        this.timerController = new TimerController(view, this);
     }
 
     /**
@@ -192,6 +196,16 @@ public class GameController {
     private void initializeNewGame(List<GameData> gamesForSize, String difficulty, int size, GameSetupDialog dialog) {
         FutoshikiBoard board;
         
+        // IMPORTANTE: Detener y reiniciar timer antes de empezar
+        view.stopTimer();
+        view.restartTimer();
+        
+        startTime = System.currentTimeMillis();
+        System.out.println("Inicializando nuevo juego:");
+        System.out.println("- Tamaño: " + size + "x" + size);
+        System.out.println("- Dificultad: " + difficulty);
+        System.out.println("- Tiempo inicial: " + startTime);
+
         if (size >= 6) {
             System.out.println("Generando tablero " + size + "x" + size);
             board = FutoshikiGenerator.generateGame(size, difficulty);
@@ -222,35 +236,39 @@ public class GameController {
         gameState.setBoard(board);
         gameState.setDifficulty(difficulty);
         
-        // Reiniciar estructuras
+        // Reiniciar estructuras de control
         moves.clear();
         redoMoves.clear();
         
         // IMPORTANTE: Establecer el estado de juego antes de actualizar la vista
         isGameStarted = true;
         
-        // Actualizar la vista
+        // Actualizar la vista y el timer
         view.setLevel(difficulty);
         view.setTimerType(config);
-        view.getGameBoard().setSize(size);
-        view.getDigitPanel().setMaxDigits(size);
-        
-        // CRÍTICO: Habilitar la jugabilidad ANTES de actualizar el tablero
-        view.getGameBoard().setPlayable(true);
+        view.setConfiguration(config);
         view.enableGameButtons(true);
-        
-        // Actualizar el tablero
+        view.getGameBoard().setPlayable(true);
         view.getGameBoard().updateBoard(board);
         
-        // Iniciar el timer
-        startTime = System.currentTimeMillis();
+        // IMPORTANTE: Iniciar el timer después de toda la configuración
+        timerController.setValores(config); // Asegurarse que el timer tenga la configuración correcta
         view.startTimer();
         
         // Verificación
+        System.out.println("Juego inicializado. Estado del timer:");
+        System.out.println("- Tiempo inicial: " + startTime);
+        System.out.println("- Tiempo actual: " + System.currentTimeMillis());
+        System.out.println("- Diferencia: " + (System.currentTimeMillis() - startTime) + "ms");
         System.out.println("Estado final de inicialización:");
         System.out.println("- Juego iniciado: " + isGameStarted);
         System.out.println("- Tablero jugable: " + view.getGameBoard().isPlayable());
         System.out.println("- Tamaño del tablero: " + board.getSize());
+        System.out.println("Timer iniciado. Configuración:");
+        System.out.println("- Tipo: " + config.getTimerType());
+        System.out.println("- Horas: " + config.getTimerHours());
+        System.out.println("- Minutos: " + config.getTimerMinutes());
+        System.out.println("- Segundos: " + config.getTimerSeconds());
     }
 
     /**
@@ -680,24 +698,45 @@ public class GameController {
      * Maneja la finalización del juego.
      */
     private void handleGameCompletion() {
-        // Calcular tiempo total actual
-        int totalSeconds = (int)((System.currentTimeMillis() - startTime) / 1000);
-        int size = gameState.getBoard().getSize(); // Obtener el tamaño actual del tablero
+        long currentTime = System.currentTimeMillis();
+        System.out.println("\n=== VERIFICACIÓN TIEMPO FINAL ===");
+        System.out.println("Start time: " + startTime);
+        System.out.println("Current time: " + currentTime);
+        System.out.println("Diferencia en ms: " + (currentTime - startTime));
         
-        // Verificar Top 10 y guardar si califica
+        // Verificar que startTime sea válido
+        if (startTime <= 0) {
+            System.err.println("ADVERTENCIA: startTime no inicializado correctamente");
+            startTime = currentTime - 1000; // Asignar 1 segundo por defecto
+        }
+        
+        int totalSeconds = (int)((currentTime - startTime) / 1000);
+        System.out.println("Tiempo total en segundos: " + totalSeconds);
+
+        // Convertir a formato legible
+        int hours = totalSeconds / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
+        int seconds = totalSeconds % 60;
+        
+        System.out.println("Tiempo formateado: " + 
+            String.format("%02d:%02d:%02d", hours, minutes, seconds));
+
+        int size = gameState.getBoard().getSize();
+        
         if (top10Manager.wouldQualifyForTop10(gameState.getDifficulty(), totalSeconds, size)) {
-            int hours = totalSeconds / 3600;
-            int minutes = (totalSeconds % 3600) / 60;
-            int seconds = totalSeconds % 60;
-            
-            top10Manager.addScore(new model.game.GameScore(
+            GameScore newScore = new GameScore(
                 view.getPlayerName(),
                 hours,
                 minutes,
                 seconds,
                 gameState.getDifficulty(),
                 size
-            ));
+            );
+            
+            boolean added = top10Manager.addScore(newScore);
+            if (!added) {
+                System.err.println("Error al guardar el score en el Top 10");
+            }
         }
 
         if(isMultiNivel) {

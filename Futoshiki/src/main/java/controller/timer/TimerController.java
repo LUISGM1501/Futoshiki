@@ -39,6 +39,7 @@ public class TimerController {
      * @param config La configuración que contiene los valores del temporizador.
      */
     public void setValores(Configuration config) {
+        System.out.println("TimerController: Configurando valores");
         this.secondsPassed = config.getTimerSeconds();
         this.minutesPassed = config.getTimerMinutes();
         this.hoursPassed = config.getTimerHours();
@@ -51,6 +52,11 @@ public class TimerController {
         
         // Resetear estado
         this.timerExpired = false;
+        
+        System.out.println("TimerController configurado:");
+        System.out.println("- Tipo: " + cronometro);
+        System.out.println("- Valores iniciales: " + hoursPassed + ":" + 
+                          minutesPassed + ":" + secondsPassed);
     }
 
     /**
@@ -62,6 +68,8 @@ public class TimerController {
             cronometro = "Cronómetro"; // valor por defecto
         }
 
+        System.out.println("TimerController: Actualizando tiempo - Tipo: " + cronometro);
+        
         switch (cronometro) {
             case "Cronómetro":
                 incrementTime();
